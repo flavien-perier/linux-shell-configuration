@@ -214,9 +214,9 @@ fi
 if [ $UID -eq 0 ]
 then
 	PACKAGE_INSTALLER="exit -1;"
-	command_exists "apt-get" && apt-get update && PACKAGE_INSTALLER="apt-get install"
-	command_exists "yum" && PACKAGE_INSTALLER="yum install"
-	command_exists "dnf" && PACKAGE_INSTALLER="dnf install"
+	command_exists "apt-get" && apt-get update && PACKAGE_INSTALLER="apt-get install -y"
+	command_exists "yum" && PACKAGE_INSTALLER="yum install -y"
+	command_exists "dnf" && PACKAGE_INSTALLER="dnf install -y"
 
 	command_exists "bash" || $PACKAGE_INSTALLER zsh
 	command_exists "zsh" || $PACKAGE_INSTALLER zsh

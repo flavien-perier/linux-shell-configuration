@@ -166,7 +166,7 @@ print_alias_list() {
 	echo 'alias zsh="exec zsh"'
 	echo 'alias fish="exec fish"'
 	echo ''
-	echo 'alias ll="ls -alh"'
+	echo 'alias ll="ls -alh --time-style="+%Y-%m-%d""'
 	echo 'alias vi="vim"'
 	echo ''
 }

@@ -225,7 +225,7 @@ then
 	command_exists "yum" && PACKAGE_INSTALLER="yum install -y"
 	command_exists "dnf" && PACKAGE_INSTALLER="dnf install -y"
 
-	command_exists "bash" || $PACKAGE_INSTALLER zsh
+	command_exists "bash" || $PACKAGE_INSTALLER bash
 	command_exists "zsh" || $PACKAGE_INSTALLER zsh
 	command_exists "fish" || $PACKAGE_INSTALLER fish
 	command_exists "vim" || $PACKAGE_INSTALLER vim

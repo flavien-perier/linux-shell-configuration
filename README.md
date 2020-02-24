@@ -1,17 +1,19 @@
 # Linux Shell
 
-Add and configure 3 different shells : 
+Add and configure 3 different shells :
+
 - bash
 - zsh
 - fish
 
 These 3 shells then have equivalent prompts. These prompts have the following characteristics :
+
 - Time display
 - Display of the active shell (bash, zsh or fish)
 - Display of the active user
 - Display of the machine name
 - Display of the current location
-- Display of the branch [Git](https://git-scm.com/) of the current doccier (if it exists)
+- Display of the branch [Git](https://git-scm.com/) of the current folder (if it exists)
 
 ## Installation
 
@@ -22,4 +24,3 @@ These 3 shells then have equivalent prompts. These prompts have the following ch
 ## Other features
 
 - The command vi will use vim
-- The weather command will give the weather of the region

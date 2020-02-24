@@ -5,182 +5,187 @@
 # $1 used shell
 
 print_bashrc() {
-	echo '#!/bin/bash'
-	echo ''
-	echo 'shopt -s checkwinsize'
-	echo 'command_not_found_handle()(printf "%s: command not found\n" "$1" >&2)'
-	echo ''
-	echo 'export HISTSIZE=1000'
-	echo 'export HISTFILESIZE=2000'
-	echo 'export HISTTIMEFORMAT="%F%T - "'
-	echo 'export HISTIGNORE="ls:ll:ls -al:ls -alh:pwd:clear"'
-	echo 'export HISTCONTROL="ignoredups"'
-	echo ''
-	echo 'git_prompt() {'
-	echo '	BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`'
-	echo '	if [ $? -eq 0 ]'
-	echo '	then'
-	echo '		git diff --cached --exit-code > /dev/null'
-	echo '		if [ $? -eq 0 ]'
-	echo '		then'
-	echo '			printf " \e[m[\e[32m$BRANCH\e[m]\e[34m"'
-	echo '		else'
-	echo '			printf " \e[m[\e[31m$BRANCH\e[m]\e[34m"'
-	echo '		fi'
-	echo '	else'
-	echo '		echo -n ""'
-	echo '	fi'
-	echo '}'
-	echo ''
-	echo 'if [ $UID -eq 0 ]'
-	echo 'then'
-	echo '	export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt) # \[\e[m\]"'
-	echo 'else'
-	echo '	export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt) % \[\e[m\]"'
-	echo 'fi'
-	echo ''
+	echo '#!/bin/bash
+
+	shopt -s checkwinsize
+	command_not_found_handle()(printf "%s: command not found\n" "$1" >&2)
+
+	export HISTSIZE=1000
+	export HISTFILESIZE=2000
+	export HISTTIMEFORMAT="%F%T - "
+	export HISTIGNORE="ls:ll:ls -al:ls -alh:pwd:clear"
+	export HISTCONTROL="ignoredups"
+
+	git_prompt() {
+		BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
+		if [ $? -eq 0 ]
+		then
+			git diff --cached --exit-code > /dev/null
+			if [ $? -eq 0 ]
+			then
+				printf " \e[m[\e[32m$BRANCH\e[m]\e[34m"
+			else
+				printf " \e[m[\e[31m$BRANCH\e[m]\e[34m"
+			fi
+		else
+			echo -n ""
+		fi
+	}
+
+	if [ $UID -eq 0 ]
+	then
+		export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n# \[\e[m\] > "
+	else
+		export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n% \[\e[m\] > "
+	fi'
 }
 
 print_zshrc() {
-	echo '#!/usr/bin/env zsh'
-	echo ''
-	echo 'autoload -U compinit'
-	echo 'compinit'
-	echo 'zstyle ":completion:*:descriptions" format "%U%B%d%b%u"'
-	echo 'zstyle ":completion:*:warnings" format "%BSorry, no matches for: %d%b"'
-	echo 'zstyle ":completion:*:sudo:*" command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin'
-	echo 'zstyle ":completion:*" use-cache on'
-	echo 'zstyle ":completion:*" cache-path ~/.zsh_cache'
-	echo ''
-	echo 'zmodload zsh/complist'
-	echo 'setopt extendedglob'
-	echo 'setopt promptsubst'
-	echo 'zstyle ":completion:*:*:kill:*:processes" list-colors "=(#b) #([0-9]#)*=36=31"'
-	echo ''
-	echo 'setopt correctall'
-	echo ''
-	echo 'git_prompt() {'
-	echo '	BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`'
-	echo '	if [ $? -eq 0 ]'
-	echo '	then'
-	echo '		git diff --cached --exit-code > /dev/null'
-	echo '		if [ $? -eq 0 ]'
-	echo '		then'
-	echo '			print -Pn " %f[%F{green}$BRANCH%f]%F{blue}"'
-	echo '		else'
-	echo '			print -Pn " %f[%F{red}$BRANCH%f]%F{blue}"'
-	echo '		fi'
-	echo '	else'
-	echo '		print -Pn ""'
-	echo '	fi'
-	echo '}'
-	echo ''
-	echo 'if [ $UID -eq 0 ]'
-	echo 'then'
-	echo '	export PROMPT="%f%* (zsh) %F{red}%n@%m %F{blue}%~\$(git_prompt) %# %f"'
-	echo 'else'
-	echo '	export PROMPT="%f%* (zsh) %F{green}%n@%m %F{blue}%~\$(git_prompt) %# %f"'
-	echo 'fi'
-	echo ''
+	echo '#!/usr/bin/env zsh
+
+	autoload -U compinit
+	compinit
+	zstyle ":completion:*:descriptions" format "%U%B%d%b%u"
+	zstyle ":completion:*:warnings" format "%BSorry, no matches for: %d%b"
+	zstyle ":completion:*:sudo:*" command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
+	zstyle ":completion:*" use-cache on
+	zstyle ":completion:*" cache-path ~/.zsh_cache
+
+	zmodload zsh/complist
+	setopt extendedglob
+	setopt promptsubst
+	zstyle ":completion:*:*:kill:*:processes" list-colors "=(#b) #([0-9]#)*=36=31"
+
+	setopt correctall
+
+	git_prompt() {
+		BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
+		if [ $? -eq 0 ]
+		then
+			git diff --cached --exit-code > /dev/null
+			if [ $? -eq 0 ]
+			then
+				print -Pn " %f[%F{green}$BRANCH%f]%F{blue}"
+			else
+				print -Pn " %f[%F{red}$BRANCH%f]%F{blue}"
+			fi
+		else
+			print -Pn ""
+		fi
+	}
+
+	if [ $UID -eq 0 ]
+	then
+		export PROMPT="%f%* (zsh) %F{red}%n@%m %F{blue}%~\$(git_prompt)
+%# %f > "
+	else
+		export PROMPT="%f%* (zsh) %F{green}%n@%m %F{blue}%~\$(git_prompt)
+%# %f > "
+	fi'
 }
 
 print_fishrc() {
-	echo '#!/usr/bin/env fish'
-	echo ''
-	echo 'set --universal fish_greeting ""'
-	echo 'set -g fish_prompt_pwd_dir_length 10'
-	echo ''
-	echo 'function git_prompt'
-	echo '	set BRANCH (git rev-parse --abbrev-ref HEAD 2>/dev/null)'
-	echo '	if [ $status -eq 0 ]'
-	echo '		git diff --cached --exit-code > /dev/null'
-	echo '		if [ $status -eq 0 ]'
-	echo '			set_color normal'
-	echo '			echo -n "["'
-	echo '			set_color green'
-	echo '			echo -n $BRANCH'
-	echo '			set_color normal'
-	echo '			echo -n "]"'
-	echo '			set_color blue'
-	echo '			echo -n " "'
-	echo '		else'
-	echo '			set_color normal'
-	echo '			echo -n "["'
-	echo '			set_color red'
-	echo '			echo -n $BRANCH'
-	echo '			set_color normal'
-	echo '			echo -n "]"'
-	echo '			set_color blue'
-	echo '			echo -n " "'
-	echo '		end'
-	echo '	else'
-	echo '		echo -n ""'
-	echo '	end'
-	echo 'end'
-	echo ''
-	echo 'function fish_prompt'
-	echo '	set_color normal'
-	echo '	echo -n (date +"%H:%M:%S")'
-	echo '	echo -n " (fish) "'
-	echo ''
-	echo '	if [ $USER = "root" ]'
-	echo '		set_color red'
-	echo '	else'
-	echo '		set_color green'
-	echo '	end'
-	echo ''
-	echo '	echo -n $LOGNAME'
-	echo '	echo -n @'
-	echo '	echo -n (hostname)'
-	echo ''
-	echo '	set_color blue'
-	echo ''
-	echo '	echo -n " "'
-	echo '	echo -n (prompt_pwd)'
-	echo '	echo -n " "'
-	echo ''
-	echo '	git_prompt'
-	echo ''
-	echo '	if [ $USER = "root" ]'
-	echo '		echo -n "# "'
-	echo '	else'
-	echo '		echo -n "% "'
-	echo '	end'
-	echo ''
-	echo '	set_color normal'
-	echo 'end'
-	echo ''
+	echo '#!/usr/bin/env fish
+
+	set --universal fish_greeting ""
+	set -g fish_prompt_pwd_dir_length 10
+
+	function git_prompt
+		set BRANCH (git rev-parse --abbrev-ref HEAD 2>/dev/null)
+		if [ $status -eq 0 ]
+			git diff --cached --exit-code > /dev/null
+			if [ $status -eq 0 ]
+				set_color normal
+				echo -n "["
+				set_color green
+				echo -n $BRANCH
+				set_color normal
+				echo -n "]"
+				set_color blue
+				echo -n " "
+			else
+				set_color normal
+				echo -n "["
+				set_color red
+				echo -n $BRANCH
+				set_color normal
+				echo -n "]"
+				set_color blue
+				echo -n " "
+			end
+		else
+			echo -n ""
+		end
+	end
+
+	function fish_prompt
+		set_color normal
+		echo -n (date +"%H:%M:%S")
+		echo -n " (fish) "
+
+		if [ $USER = "root" ]
+			set_color red
+		else
+			set_color green
+		end
+
+		echo -n $LOGNAME
+		echo -n @
+		echo -n (hostname)
+
+		set_color blue
+
+		echo -n " "
+		echo -n (prompt_pwd)
+		echo -n " "
+
+		git_prompt
+
+		echo ""
+	
+		if [ $USER = "root" ]
+			echo -n "# "
+		else
+			echo -n "% "
+		end
+	
+		set_color normal
+
+		echo -n " > "
+	end'
 }
 
 print_alias_list() {
-	echo 'alias ls="ls --color=auto"'
-	echo 'alias dir="dir --color=auto"'
-	echo 'alias vdir="vdir --color=auto"'
-	echo 'alias grep="grep --color=auto"'
-	echo 'alias fgrep="fgrep --color=auto"'
-	echo 'alias egrep="egrep --color=auto"'
-	echo ''
-	echo 'alias weather="curl wttr.in"'
-	echo ''
-	echo 'alias bash="exec bash"'
-	echo 'alias zsh="exec zsh"'
-	echo 'alias fish="exec fish"'
-	echo ''
-	echo 'alias ll="ls -alh --time-style="+%Y-%m-%d""'
-	echo 'alias vi="vim"'
-	echo ''
+	echo '
+	alias ls="ls --color=auto"
+	alias dir="dir --color=auto"
+	alias vdir="vdir --color=auto"
+	alias grep="grep --color=auto"
+	alias fgrep="fgrep --color=auto"
+	alias egrep="egrep --color=auto"
+	
+	alias bash="exec bash"
+	alias zsh="exec zsh"
+	alias fish="exec fish"
+	
+	alias ll="ls -alh --time-style="+%Y-%m-%d""
+	alias vi="vim"'
 }
 
 print_profile() {
-	echo 'if [ $UID -eq 0 ]'
-	echo 'then'
-	echo '	export PS1="# > "'
-	echo 'else'
-	echo '	export PS1="$ > "'
-	echo 'fi'
-	echo ''
-	echo "exec $1"
-	echo ''
+	echo 'if [ -d ~/bin ]
+	then
+		PATH="$PATH:~/bin"
+	fi
+
+	if [ $UID -eq 0 ]
+	then
+		export PS1="# > "
+	else
+		export PS1="$ > "
+	fi
+	
+	exec $1'
 }
 
 command_exists() {

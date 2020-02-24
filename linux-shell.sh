@@ -34,9 +34,9 @@ print_bashrc() {
 
 	if [ $UID -eq 0 ]
 	then
-		export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n# \[\e[m\] > "
+		export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]# \[\e[m\] > "
 	else
-		export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n% \[\e[m\] > "
+		export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]% \[\e[m\] > "
 	fi'
 }
 
@@ -77,10 +77,10 @@ print_zshrc() {
 	if [ $UID -eq 0 ]
 	then
 		export PROMPT="%f%* (zsh) %F{red}%n@%m %F{blue}%~\$(git_prompt)
-%# %f > "
+%F{red}%# %f > "
 	else
 		export PROMPT="%f%* (zsh) %F{green}%n@%m %F{blue}%~\$(git_prompt)
-%# %f > "
+%F{green}%# %f > "
 	fi'
 }
 
@@ -144,8 +144,10 @@ print_fishrc() {
 		echo ""
 	
 		if [ $USER = "root" ]
+			set_color red
 			echo -n "# "
 		else
+			set_color green
 			echo -n "% "
 		end
 	

@@ -170,7 +170,7 @@ alias bash="exec bash"
 alias zsh="exec zsh"
 alias fish="exec fish"
 
-alias ll="ls -alh --time-style="+%Y-%m-%d""
+alias ll="ls -alh --time-style=\"+%Y-%m-%d %H:%m\""
 alias vi="vim"'
 }
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Flavien PERIER <perier@flavien.cc>
+# Flavien PERIER <perier@flavien.io>
 # Install user profiles
 
 # $1 used shell

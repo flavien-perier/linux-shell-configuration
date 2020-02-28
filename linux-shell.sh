@@ -34,9 +34,9 @@ git_prompt() {
 
 if [ $UID -eq 0 ]
 then
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]# \[\e[m\] > "
+	export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
 else
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]% \[\e[m\] > "
+	export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
 fi'
 }
 
@@ -77,10 +77,10 @@ git_prompt() {
 if [ $UID -eq 0 ]
 then
 	export PROMPT="%f%* (zsh) %F{red}%n@%m %F{blue}%~\$(git_prompt)
-%F{red}%# %f > "
+%F{red}%#%f > "
 else
 	export PROMPT="%f%* (zsh) %F{green}%n@%m %F{blue}%~\$(git_prompt)
-%F{green}%# %f > "
+%F{green}%#%f > "
 fi'
 }
 
@@ -145,10 +145,10 @@ function fish_prompt
 
 	if [ $USER = "root" ]
 		set_color red
-		echo -n "# "
+		echo -n "#"
 	else
 		set_color green
-		echo -n "% "
+		echo -n "%"
 	end
 
 	set_color normal
@@ -194,6 +194,17 @@ command_exists() {
 	command -v "$1" >/dev/null 2>&1
 }
 
+download_scripts() {
+	mkdir /tmp/users-bin
+
+	curl -L https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl -o /tmp/users-bin/kubectl
+
+	git clone https://github.com/ahmetb/kubectx.git /tmp/kubectx
+	mv /tmp/kubectx/kubectx /tmp/users-bin/kubectx
+	mv /tmp/kubectx/kubens /tmp/users-bin/kubens
+	rm -Rf /tmp/kubectx
+}
+
 install_conf() {
 	print_bashrc > $1/.bashrc
 	print_alias_list >> $1/.bashrc
@@ -208,6 +219,14 @@ install_conf() {
 	print_fishrc > $1/.config/fish/config.fish
 	print_alias_list >> $1/.config/fish/config.fish
 	chown $2:$2 $1/.config -R
+
+	if [ -d /tmp/users-bin ]
+	then
+		mkdir -p $1/bin
+		cp -R /tmp/users-bin/* $1/bin/
+		chmod -R 500 $1/bin
+		chown -R $2:$2 $1/bin
+	fi
 
 	print_profile "$3" > $1/.profile
 }
@@ -233,6 +252,8 @@ then
 	command_exists "git" || $PACKAGE_INSTALLER git
 	command_exists "curl" || $PACKAGE_INSTALLER curl
 
+	download_scripts
+
 	print_bashrc > /etc/bash.bashrc
 
 	for USER_NAME in `ls /home`
@@ -240,6 +261,8 @@ then
 		install_conf "/home/$USER_NAME" $USER_NAME $SHELL
 		chsh -s "/bin/bash" $USER_NAME
 	done
+
+	rm -Rf /tmp/users-bin
 
 	install_conf ~ $USER "bash"
 	chsh -s /bin/bash

@@ -34,9 +34,9 @@ git_prompt() {
 
 if [ $UID -eq 0 ]
 then
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
+	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1m\]B\e[m\] \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
 else
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") (bash) \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
+	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1m\]B\e[m\] \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
 fi'
 }
 
@@ -76,10 +76,10 @@ git_prompt() {
 
 if [ $UID -eq 0 ]
 then
-	export PROMPT="%f%* (zsh) %F{red}%n@%m %F{blue}%~\$(git_prompt)
+	export PROMPT="%f%* %BZ%b %F{red}%n@%m %F{blue}%~\$(git_prompt)
 %F{red}%#%f > "
 else
-	export PROMPT="%f%* (zsh) %F{green}%n@%m %F{blue}%~\$(git_prompt)
+	export PROMPT="%f%* %BZ%b %F{green}%n@%m %F{blue}%~\$(git_prompt)
 %F{green}%#%f > "
 fi'
 }
@@ -121,7 +121,10 @@ end
 function fish_prompt
 	set_color normal
 	echo -n (date +"%H:%M:%S")
-	echo -n " (fish) "
+	
+	set_color --bold
+	echo -n " F "
+	set_color normal
 
 	if [ $USER = "root" ]
 		set_color red

@@ -184,9 +184,11 @@ alias vi="vim"'
 }
 
 print_profile() {
-	echo 'if [ -d ~/bin ]
+	echo "USER_PATH=$1"
+
+	echo 'if [ -d $USER_PATH/bin ]
 then
-	PATH="$PATH:~/bin"
+	PATH="$PATH:$USER_PATH/bin"
 fi
 
 if [ $UID -eq 0 ]
@@ -196,7 +198,7 @@ else
 	export PS1="$ > "
 fi'
 
-	echo "exec $1"
+	echo "exec $2"
 }
 
 command_exists() {
@@ -237,7 +239,7 @@ install_conf() {
 		chown -R $2:$2 $1/bin
 	fi
 
-	print_profile "$3" > $1/.profile
+	print_profile $1 "$3" > $1/.profile
 }
 
 SHELL=$1

@@ -10,11 +10,11 @@ print_bashrc() {
 shopt -s checkwinsize
 command_not_found_handle()(printf "%s: command not found\n" "$1" >&2)
 
-export HISTSIZE=1000
-export HISTFILESIZE=2000
-export HISTTIMEFORMAT="%F%T - "
-export HISTIGNORE="ls:ll:ls -al:ls -alh:pwd:clear"
+export HISTSIZE=5000
+export HISTFILESIZE=5000
+export HISTIGNORE="ls:ll:pwd:clear"
 export HISTCONTROL="ignoredups"
+export HISTFILE="/home/$USER/.bash_history"
 
 git_prompt() {
 	BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
@@ -50,6 +50,12 @@ zstyle ":completion:*:warnings" format "%BSorry, no matches for: %d%b"
 zstyle ":completion:*:sudo:*" command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
 zstyle ":completion:*" use-cache on
 zstyle ":completion:*" cache-path ~/.zsh_cache
+
+export HISTSIZE=5000
+export HISTFILESIZE=5000
+export HISTIGNORE="ls:ll:pwd:clear"
+export HISTCONTROL="ignoredups"
+export HISTFILE="/home/$USER/.bash_history"
 
 zmodload zsh/complist
 setopt extendedglob
@@ -268,6 +274,7 @@ then
 	rm -Rf /tmp/users-bin
 
 	install_conf ~ $USER "bash"
+	install_conf /etc/skel $USER "bash"
 	chsh -s /bin/bash
 else
 	install_conf ~ $USER $SHELL

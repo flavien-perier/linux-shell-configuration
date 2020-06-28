@@ -209,11 +209,8 @@ download_scripts() {
 	mkdir /tmp/users-bin
 
 	curl -L https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl -o /tmp/users-bin/kubectl
-
-	git clone https://github.com/ahmetb/kubectx.git /tmp/kubectx
-	mv /tmp/kubectx/kubectx /tmp/users-bin/kubectx
-	mv /tmp/kubectx/kubens /tmp/users-bin/kubens
-	rm -Rf /tmp/kubectx
+	curl https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/users-bin/kubectx
+	curl https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens -o /tmp/users-bin/kubens
 }
 
 install_conf() {

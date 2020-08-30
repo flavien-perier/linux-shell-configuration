@@ -1,5 +1,7 @@
 # Linux Shell Configuration
 
+![Screenshot](./doc/screenshot.png)
+
 Add and configure 3 different shells :
 
 - bash

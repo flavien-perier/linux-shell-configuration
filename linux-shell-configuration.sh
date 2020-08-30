@@ -34,9 +34,9 @@ git_prompt() {
 
 if [ $UID -eq 0 ]
 then
-	export PS1="\[\e[m\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\u@\H \[\e[34m\w\$(git_prompt)\n\[\e[31m#\[\e[m > "
+	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
 else
-	export PS1="\[\e[m\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\u@\H \[\e[34m\w\$(git_prompt)\n\[\e[32m%\[\e[m > "
+	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
 fi'
 }
 

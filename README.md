@@ -1,4 +1,4 @@
-# Linux Shell
+# Linux Shell Configuration
 
 Add and configure 3 different shells :
 

@@ -34,9 +34,9 @@ git_prompt() {
 
 if [ $UID -eq 0 ]
 then
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1m\]B\e[m\] \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
+	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
 else
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1m\]B\e[m\] \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
+	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
 fi'
 }
 
@@ -251,12 +251,14 @@ then
 	command_exists "apt-get" && apt-get update && PACKAGE_INSTALLER="apt-get install -y"
 	command_exists "yum" && PACKAGE_INSTALLER="yum install -y"
 	command_exists "dnf" && PACKAGE_INSTALLER="dnf install -y"
+	command_exists "apk" && PACKAGE_INSTALLER="apk add --update --no-cache"
 
 	command_exists "bash" || $PACKAGE_INSTALLER bash
 	command_exists "zsh" || $PACKAGE_INSTALLER zsh
 	command_exists "fish" || $PACKAGE_INSTALLER fish
 	command_exists "vim" || $PACKAGE_INSTALLER vim
 	command_exists "tree" || $PACKAGE_INSTALLER tree
+	command_exists "htop" || $PACKAGE_INSTALLER htop
 	command_exists "git" || $PACKAGE_INSTALLER git
 	command_exists "curl" || $PACKAGE_INSTALLER curl
 

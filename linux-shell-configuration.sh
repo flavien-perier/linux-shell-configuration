@@ -34,9 +34,9 @@ git_prompt() {
 
 if [ $UID -eq 0 ]
 then
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
+	export PS1="\[\e[m\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\u@\H \[\e[34m\w\$(git_prompt)\n\[\e[31m#\[\e[m > "
 else
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
+	export PS1="\[\e[m\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\u@\H \[\e[34m\w\$(git_prompt)\n\[\e[32m%\[\e[m > "
 fi'
 }
 
@@ -208,9 +208,17 @@ command_exists() {
 download_scripts() {
 	mkdir /tmp/users-bin
 
-	curl -L https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl -o /tmp/users-bin/kubectl
-	curl https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/users-bin/kubectx
-	curl https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens -o /tmp/users-bin/kubens
+	# Install kubectl
+	curl -Lqs https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl -o /tmp/users-bin/kubectl
+	
+	# Install docker-compose
+	curl -Lqs https://github.com/docker/compose/releases/download/1.26.2/docker-compose-`uname -s`-`uname -m` -o /tmp/users-bin/docker-compose
+	
+	# Install kubectx
+	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/users-bin/kubectx
+
+	# Install kubens
+	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens -o /tmp/users-bin/kubens
 }
 
 install_conf() {
@@ -261,6 +269,7 @@ then
 	command_exists "htop" || $PACKAGE_INSTALLER htop
 	command_exists "git" || $PACKAGE_INSTALLER git
 	command_exists "curl" || $PACKAGE_INSTALLER curl
+	command_exists "wget" || $PACKAGE_INSTALLER wget
 
 	download_scripts
 
@@ -272,8 +281,6 @@ then
 		chsh -s "/bin/bash" $USER_NAME
 	done
 
-	rm -Rf /tmp/users-bin
-
 	install_conf ~ $USER "bash"
 	install_conf /etc/skel $USER "bash"
 	chsh -s /bin/bash
@@ -281,3 +288,5 @@ else
 	install_conf ~ $USER $SHELL
 	chsh -s /bin/bash
 fi
+
+rm -Rf /tmp/users-bin

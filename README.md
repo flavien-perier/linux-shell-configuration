@@ -17,10 +17,13 @@ These 3 shells then have equivalent prompts. These prompts have the following ch
 
 ## Installation
 
-- If you are in root mode, the shells and their configuration will be installed for all users of the system. You can pass as argument which shell (bash, zsh or fish) will be the default shell. Note, the default shell of the root user will always be bash (for security reasons).
+```sh
+sudo curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh | bash -
+```
 
-- If you have a simple user account, the shell configuration will be installed on your account. However, if the shells are not already installed on the system, the script will not be able to install them for you.
+## Install for all users
 
-## Other features
-
-- The command vi will use vim
+- kubectl
+- docker-compose
+- kubectx
+- kubens

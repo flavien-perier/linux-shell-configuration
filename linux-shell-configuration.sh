@@ -260,6 +260,7 @@ then
 	command_exists "yum" && PACKAGE_INSTALLER="yum install -y"
 	command_exists "dnf" && PACKAGE_INSTALLER="dnf install -y"
 	command_exists "apk" && PACKAGE_INSTALLER="apk add --update --no-cache"
+	command_exists "pacman" && PACKAGE_INSTALLER="pacman --noconfirm -S"
 
 	command_exists "bash" || $PACKAGE_INSTALLER bash
 	command_exists "zsh" || $PACKAGE_INSTALLER zsh

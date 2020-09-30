@@ -166,13 +166,17 @@ function fish_prompt
 end'
 }
 
+print_profile() {
+	echo "# linux-shell-configuration"
+	echo "if [ -d $1/bin ]"
+	echo "then"
+	echo "	export PATH="\$PATH:$1/bin""
+	echo "fi"
+	echo "exec $2"
+}
+
 print_alias_list() {
 	echo '
-if [ -d $USER_PATH/bin ]
-then
-	export PATH="$PATH:$USER_PATH/bin"
-fi
-
 alias ls="ls --color=auto"
 alias dir="dir --color=auto"
 alias vdir="vdir --color=auto"
@@ -196,7 +200,7 @@ command_exists() {
 }
 
 download_scripts() {
-	mkdir /tmp/users-bin
+	mkdir -p /tmp/users-bin
 
 	# Install kubectl
 	curl -Lqs https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl -o /tmp/users-bin/kubectl
@@ -220,8 +224,7 @@ install_conf() {
 	print_alias_list >> $1/.zshrc
 	chown $2:$2 $1/.zshrc
 
-	mkdir $1/.config/ 2>/dev/null
-	mkdir $1/.config/fish 2>/dev/null
+	mkdir -p $1/.config/fish
 	print_fishrc > $1/.config/fish/config.fish
 	print_alias_list >> $1/.config/fish/config.fish
 	chown $2:$2 $1/.config -R
@@ -232,6 +235,12 @@ install_conf() {
 		cp -R /tmp/users-bin/* $1/bin/
 		chmod -R 500 $1/bin
 		chown -R $2:$2 $1/bin
+	fi
+
+	grep -q "# linux-shell-configuration" $1/.profile
+	if [ $? -ne 0 ]
+	then
+		print_profile $1 "$3" >> $1/.profile
 	fi
 }
 

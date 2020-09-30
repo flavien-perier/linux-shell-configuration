@@ -20,7 +20,7 @@ These 3 shells then have equivalent prompts. These prompts have the following ch
 ## Installation
 
 ```sh
-sudo curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh | bash -
+curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh | sudo bash -
 ```
 
 ## Install for all users

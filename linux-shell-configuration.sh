@@ -168,6 +168,11 @@ end'
 
 print_alias_list() {
 	echo '
+if [ -d $USER_PATH/bin ]
+then
+	export PATH="$PATH:$USER_PATH/bin"
+fi
+
 alias ls="ls --color=auto"
 alias dir="dir --color=auto"
 alias vdir="vdir --color=auto"
@@ -179,26 +184,11 @@ alias bash="exec bash"
 alias zsh="exec zsh"
 alias fish="exec fish"
 
+alias df="df -h"
+alias du="du -hs"
+alias free="free -h"
 alias ll="ls -alh --time-style=\"+%Y-%m-%d %H:%m\""
 alias vi="vim"'
-}
-
-print_profile() {
-	echo "USER_PATH=$1"
-
-	echo 'if [ -d $USER_PATH/bin ]
-then
-	PATH="$PATH:$USER_PATH/bin"
-fi
-
-if [ $UID -eq 0 ]
-then
-	export PS1="# > "
-else
-	export PS1="$ > "
-fi'
-
-	echo "exec $2"
 }
 
 command_exists() {
@@ -243,8 +233,6 @@ install_conf() {
 		chmod -R 500 $1/bin
 		chown -R $2:$2 $1/bin
 	fi
-
-	print_profile $1 "$3" > $1/.profile
 }
 
 SHELL=$1

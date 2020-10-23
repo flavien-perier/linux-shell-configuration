@@ -1,3 +1,5 @@
+![license](https://badgen.net/github/license/flavien-perier/linux-shell-configuration)
+
 # Linux Shell Configuration
 
 ![Screenshot](./doc/screenshot.png)

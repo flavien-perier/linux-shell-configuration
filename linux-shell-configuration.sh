@@ -265,6 +265,7 @@ then
 	command_exists "vim" || $PACKAGE_INSTALLER vim
 	command_exists "tree" || $PACKAGE_INSTALLER tree
 	command_exists "htop" || $PACKAGE_INSTALLER htop
+	command_exists "nload" || $PACKAGE_INSTALLER nload
 	command_exists "git" || $PACKAGE_INSTALLER git
 	command_exists "curl" || $PACKAGE_INSTALLER curl
 	command_exists "wget" || $PACKAGE_INSTALLER wget

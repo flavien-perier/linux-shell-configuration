@@ -172,7 +172,6 @@ print_profile() {
 	echo "then"
 	echo "	export PATH="\$PATH:$1/bin""
 	echo "fi"
-	echo "exec $2"
 }
 
 print_alias_list() {
@@ -240,15 +239,9 @@ install_conf() {
 	grep -q "# linux-shell-configuration" $1/.profile
 	if [ $? -ne 0 ]
 	then
-		print_profile $1 "$3" >> $1/.profile
+		print_profile $1 >> $1/.profile
 	fi
 }
-
-SHELL=$1
-if [ -z "$1" ]
-then
-	SHELL="fish"
-fi
 
 if [ $UID -eq 0 ]
 then
@@ -276,15 +269,15 @@ then
 
 	for USER_NAME in `ls /home`
 	do
-		install_conf "/home/$USER_NAME" $USER_NAME $SHELL
+		install_conf "/home/$USER_NAME" $USER_NAME
 		chsh -s "/bin/bash" $USER_NAME
 	done
 
-	install_conf ~ $USER "bash"
-	install_conf /etc/skel $USER "bash"
+	install_conf ~ $USER
+	install_conf /etc/skel $USER
 	chsh -s /bin/bash
 else
-	install_conf ~ $USER $SHELL
+	install_conf ~ $USER
 	chsh -s /bin/bash
 fi
 

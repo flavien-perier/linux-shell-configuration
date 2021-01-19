@@ -2,8 +2,6 @@
 # Flavien PERIER <perier@flavien.io>
 # Install user profiles
 
-# $1 used shell
-
 print_bashrc() {
 	echo '#!/bin/bash
 
@@ -199,19 +197,19 @@ command_exists() {
 }
 
 download_scripts() {
-	mkdir -p /tmp/users-bin
+	mkdir -p /tmp/user-bin
 
 	# Install kubectl
-	curl -Lqs https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl -o /tmp/users-bin/kubectl
+	curl -Lqs https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl -o /tmp/user-bin/kubectl
 	
 	# Install docker-compose
-	curl -Lqs https://github.com/docker/compose/releases/download/1.26.2/docker-compose-`uname -s`-`uname -m` -o /tmp/users-bin/docker-compose
+	curl -Lqs https://github.com/docker/compose/releases/download/1.26.2/docker-compose-`uname -s`-`uname -m` -o /tmp/user-bin/docker-compose
 	
 	# Install kubectx
-	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/users-bin/kubectx
+	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/user-bin/kubectx
 
 	# Install kubens
-	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens -o /tmp/users-bin/kubens
+	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens -o /tmp/user-bin/kubens
 }
 
 install_conf() {
@@ -228,10 +226,10 @@ install_conf() {
 	print_alias_list >> $1/.config/fish/config.fish
 	chown $2:$2 $1/.config -R
 
-	if [ -d /tmp/users-bin ]
+	if [ -d /tmp/user-bin ]
 	then
 		mkdir -p $1/bin
-		cp -R /tmp/users-bin/* $1/bin/
+		cp -R /tmp/user-bin/* $1/bin/
 		chmod -R 500 $1/bin
 		chown -R $2:$2 $1/bin
 	fi
@@ -281,4 +279,4 @@ else
 	chsh -s /bin/bash
 fi
 
-rm -Rf /tmp/users-bin
+rm -Rf /tmp/user-bin

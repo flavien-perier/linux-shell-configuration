@@ -199,17 +199,42 @@ command_exists() {
 download_scripts() {
 	mkdir -p /tmp/user-bin
 
-	# Install kubectl
-	curl -Lqs https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl -o /tmp/user-bin/kubectl
-	
-	# Install docker-compose
-	curl -Lqs https://github.com/docker/compose/releases/download/1.26.2/docker-compose-`uname -s`-`uname -m` -o /tmp/user-bin/docker-compose
-	
+	KUBECTL_VSERSION=`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`
+	DOCKER_COMPOSE_VERSION=`curl https://api.github.com/repos/docker/compose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}'`
+	KMPOSE_VERSION=`curl https://api.github.com/repos/kubernetes/kompose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}'`
+
 	# Install kubectx
 	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/user-bin/kubectx
 
 	# Install kubens
 	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens -o /tmp/user-bin/kubens
+
+	case `uname -m` in
+	x86_64)
+		# Install kubectl
+		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/amd64/kubectl -o /tmp/user-bin/kubectl
+
+		# Install docker-compose
+		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64 -o /tmp/user-bin/docker-compose
+
+		# Install kompose
+		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-amd64 -o /tmp/user-bin/kompose
+		;;
+	aarch64)
+		# Install kubectl
+		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/arm64/kubectl -o /tmp/user-bin/kubectl
+
+		# Install kompose
+		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-arm64 -o /tmp/user-bin/kompose
+		;;
+	armv7l)
+		# Install kubectl
+		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/arm/kubectl -o /tmp/user-bin/kubectl
+
+		# Install kompose
+		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-arm -o /tmp/user-bin/kompose
+		;;
+	esac
 }
 
 install_conf() {
@@ -256,7 +281,6 @@ then
 	command_exists "vim" || $PACKAGE_INSTALLER vim
 	command_exists "tree" || $PACKAGE_INSTALLER tree
 	command_exists "htop" || $PACKAGE_INSTALLER htop
-	command_exists "nload" || $PACKAGE_INSTALLER nload
 	command_exists "git" || $PACKAGE_INSTALLER git
 	command_exists "curl" || $PACKAGE_INSTALLER curl
 	command_exists "wget" || $PACKAGE_INSTALLER wget
@@ -265,7 +289,7 @@ then
 
 	print_bashrc > /etc/bash.bashrc
 
-	for USER_NAME in `ls /home`
+	for USER_NAME in `ls /home | grep -v lost+found`
 	do
 		install_conf "/home/$USER_NAME" $USER_NAME
 		chsh -s "/bin/bash" $USER_NAME

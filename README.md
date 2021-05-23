@@ -27,7 +27,7 @@ curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configurati
 
 ## Install for all users
 
-- kubectl
-- docker-compose
-- kubectx
-- kubens
+- [kubectl](https://github.com/kubernetes/kubectl)
+- [docker-compose](https://github.com/docker/compose)
+- [kubectx & kubens](https://github.com/ahmetb/kubectx)
+- [kompose](https://kompose.io/)

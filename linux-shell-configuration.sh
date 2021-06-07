@@ -165,11 +165,12 @@ end'
 }
 
 print_profile() {
-	echo "# linux-shell-configuration"
-	echo "if [ -d $1/bin ]"
-	echo "then"
-	echo "	export PATH="\$PATH:$1/bin""
-	echo "fi"
+	echo '
+# linux-shell-configuration"
+if [ -d $HOME/bin ]
+then
+	export PATH="$PATH:$HOME/bin""
+fi'
 }
 
 print_alias_list() {
@@ -262,7 +263,7 @@ install_conf() {
 	grep -q "# linux-shell-configuration" $1/.profile
 	if [ $? -ne 0 ]
 	then
-		print_profile $1 >> $1/.profile
+		print_profile >> $1/.profile
 	fi
 }
 

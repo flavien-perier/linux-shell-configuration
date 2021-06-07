@@ -166,10 +166,10 @@ end'
 
 print_profile() {
 	echo '
-# linux-shell-configuration"
+# linux-shell-configuration
 if [ -d $HOME/bin ]
 then
-	export PATH="$PATH:$HOME/bin""
+	export PATH="$PATH:$HOME/bin"
 fi'
 }
 

@@ -12,7 +12,7 @@ export HISTSIZE=5000
 export HISTFILESIZE=5000
 export HISTIGNORE="ls:ll:pwd:clear"
 export HISTCONTROL="ignoredups"
-export HISTFILE="/home/$USER/.bash_history"
+export HISTFILE="$HOME/.bash_history"
 
 git_prompt() {
 	BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
@@ -53,7 +53,7 @@ export HISTSIZE=5000
 export HISTFILESIZE=5000
 export HISTIGNORE="ls:ll:pwd:clear"
 export HISTCONTROL="ignoredups"
-export HISTFILE="/home/$USER/.bash_history"
+export HISTFILE="$HOME/.bash_history"
 
 zmodload zsh/complist
 setopt extendedglob
@@ -201,8 +201,8 @@ download_scripts() {
 	mkdir -p /tmp/user-bin
 
 	KUBECTL_VSERSION=`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`
-	DOCKER_COMPOSE_VERSION=`curl https://api.github.com/repos/docker/compose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}'`
-	KMPOSE_VERSION=`curl https://api.github.com/repos/kubernetes/kompose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}'`
+	DOCKER_COMPOSE_VERSION=`curl -s https://api.github.com/repos/docker/compose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}'`
+	KMPOSE_VERSION=`curl -s https://api.github.com/repos/kubernetes/kompose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}'`
 
 	# Install kubectx
 	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/user-bin/kubectx
@@ -298,10 +298,12 @@ then
 
 	install_conf ~ $USER
 	install_conf /etc/skel $USER
-	chsh -s /bin/bash
 else
+	download_scripts
+
 	install_conf ~ $USER
-	chsh -s /bin/bash
 fi
+
+chsh -s /bin/bash
 
 rm -Rf /tmp/user-bin

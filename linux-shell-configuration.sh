@@ -267,9 +267,11 @@ install_conf() {
 	fi
 }
 
+echo "Installation: start"
+
 if [ $UID -eq 0 ]
 then
-	PACKAGE_INSTALLER="exit -1;"
+	PACKAGE_INSTALLER="echo 'Installation: FAILED' && exit -1"
 	command_exists "apt-get" && apt-get update && PACKAGE_INSTALLER="apt-get install -y"
 	command_exists "yum" && PACKAGE_INSTALLER="yum install -y"
 	command_exists "dnf" && PACKAGE_INSTALLER="dnf install -y"
@@ -285,6 +287,7 @@ then
 	command_exists "git" || $PACKAGE_INSTALLER git
 	command_exists "curl" || $PACKAGE_INSTALLER curl
 	command_exists "wget" || $PACKAGE_INSTALLER wget
+	command_exists "gawk" || $PACKAGE_INSTALLER gawk
 
 	download_scripts
 
@@ -307,3 +310,5 @@ fi
 chsh -s /bin/bash
 
 rm -Rf /tmp/user-bin
+
+echo "Installation: OK"

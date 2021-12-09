@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Flavien PERIER <perier@flavien.io>
 # Install user profiles
 
@@ -239,15 +239,18 @@ download_scripts() {
 }
 
 install_conf() {
+	touch $1/.bashrc
 	print_bashrc > $1/.bashrc
 	print_alias_list >> $1/.bashrc
 	chown $2:$2 $1/.bashrc
 
+	touch $1/.zshrc
 	print_zshrc > $1/.zshrc
 	print_alias_list >> $1/.zshrc
 	chown $2:$2 $1/.zshrc
 
 	mkdir -p $1/.config/fish
+	touch $1/.config/fish/config.fish
 	print_fishrc > $1/.config/fish/config.fish
 	print_alias_list >> $1/.config/fish/config.fish
 	chown $2:$2 $1/.config -R
@@ -260,16 +263,23 @@ install_conf() {
 		chown -R $2:$2 $1/bin
 	fi
 
-	grep -q "# linux-shell-configuration" $1/.profile
+
+	PROFILE_FILE="$1/.profile"
+	if [ -f $1/.bash_profile ]
+	then
+		PROFILE_FILE="$1/.bash_profile"
+	fi
+
+	grep -q "# linux-shell-configuration" $PROFILE_FILE
 	if [ $? -ne 0 ]
 	then
-		print_profile >> $1/.profile
+		print_profile >> $PROFILE_FILE
 	fi
 }
 
 echo "Installation: start"
 
-if [ $UID -eq 0 ]
+if [ `id -u` -eq 0 ]
 then
 	PACKAGE_INSTALLER="echo 'Installation: FAILED' && exit -1"
 	command_exists "apt-get" && apt-get update && PACKAGE_INSTALLER="apt-get install -y"
@@ -300,6 +310,8 @@ then
 	done
 
 	install_conf ~ $USER
+
+	mkdir -p /etc/skel/
 	install_conf /etc/skel $USER
 else
 	download_scripts
@@ -307,7 +319,7 @@ else
 	install_conf ~ $USER
 fi
 
-chsh -s /bin/bash
+command_exists && chsh -s /bin/bash
 
 rm -Rf /tmp/user-bin
 

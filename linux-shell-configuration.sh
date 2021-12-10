@@ -225,12 +225,18 @@ download_scripts() {
 		# Install kubectl
 		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/arm64/kubectl -o /tmp/user-bin/kubectl
 
+		# Install docker-compose
+		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-armv7 -o /tmp/user-bin/docker-compose
+
 		# Install kompose
 		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-arm64 -o /tmp/user-bin/kompose
 		;;
 	armv7l)
 		# Install kubectl
 		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/arm/kubectl -o /tmp/user-bin/kubectl
+
+		# Install docker-compose
+		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-armv7 -o /tmp/user-bin/docker-compose
 
 		# Install kompose
 		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-arm -o /tmp/user-bin/kompose

@@ -312,20 +312,20 @@ then
 	for USER_NAME in `ls /home | grep -v lost+found`
 	do
 		install_conf "/home/$USER_NAME" $USER_NAME
-		chsh -s "/bin/bash" $USER_NAME
+		command_exists chsh && chsh -s `which fish` $USER_NAME
 	done
 
 	install_conf ~ root
+	command_exists chsh && chsh -s /bin/bash
 
 	mkdir -p /etc/skel/
 	install_conf /etc/skel root
 else
 	download_scripts
 
-	install_conf ~ root
+	install_conf ~ $USER
+	command_exists chsh && chsh -s `which fish` $USER
 fi
-
-command_exists chsh && chsh -s /bin/bash
 
 rm -Rf /tmp/user-bin
 

@@ -264,16 +264,22 @@ install_conf() {
 	fi
 
 
-	PROFILE_FILE="$1/.profile"
-	if [ -f $1/.bash_profile ]
+	PROFILE_FILE="no_profile"
+	if [ -f $1/.profile ]
+	then
+		PROFILE_FILE="$1/.profile"
+	elif [ -f $1/.bash_profile ]
 	then
 		PROFILE_FILE="$1/.bash_profile"
 	fi
 
-	grep -q "# linux-shell-configuration" $PROFILE_FILE
-	if [ $? -ne 0 ]
+	if [ $PROFILE_FILE != "no_profile" ]
 	then
-		print_profile >> $PROFILE_FILE
+		grep -q "# linux-shell-configuration" $PROFILE_FILE
+		if [ $? -ne 0 ]
+		then
+			print_profile >> $PROFILE_FILE
+		fi
 	fi
 }
 
@@ -309,17 +315,17 @@ then
 		chsh -s "/bin/bash" $USER_NAME
 	done
 
-	install_conf ~ $USER
+	install_conf ~ root
 
 	mkdir -p /etc/skel/
-	install_conf /etc/skel $USER
+	install_conf /etc/skel root
 else
 	download_scripts
 
-	install_conf ~ $USER
+	install_conf ~ root
 fi
 
-command_exists && chsh -s /bin/bash
+command_exists chsh && chsh -s /bin/bash
 
 rm -Rf /tmp/user-bin
 

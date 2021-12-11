@@ -25,6 +25,19 @@ These 3 shells then have equivalent prompts. These prompts have the following ch
 curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh | sudo bash -
 ```
 
+Compatible with systems based on :
+
+- [Debian](https://www.debian.org/) -> ([Ubuntu](https://ubuntu.com/), [Mint](https://linuxmint.com/), [Kali](https://www.kali.org/))
+- [RedHat](https://www.redhat.com/) -> ([Fedora](https://getfedora.org/), [CentOS](https://www.centos.org/), [Rocky](https://rockylinux.org/))
+- [Arch](https://archlinux.org/) BTW -> ([Manjaro](https://manjaro.org/))
+- [Alpine](https://www.alpinelinux.org/)
+
+Compatible with the following architectures :
+
+- x86/64
+- ARMv7 -> [RaspberryPi](https://www.raspberrypi.org/) 2 and 3
+- ARMv8_x64 -> RaspberryPi 4
+
 ## Install for all users
 
 - [kubectl](https://github.com/kubernetes/kubectl)

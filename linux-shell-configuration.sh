@@ -164,6 +164,18 @@ function fish_prompt
 end'
 }
 
+print_neovim() {
+	echo 'set number
+set mouse=a
+set tabstop=4
+set expandtab
+set shiftwidth=4
+set autoindent
+filetype plugin indent on
+syntax on
+'
+}
+
 print_profile() {
 	echo '
 # linux-shell-configuration
@@ -190,7 +202,7 @@ alias df="df -h"
 alias du="du -hs"
 alias free="free -h"
 alias ll="ls -alh --time-style=\"+%Y-%m-%d %H:%m\""
-alias vi="vim"'
+alias vi="nvim"'
 }
 
 command_exists() {
@@ -259,6 +271,11 @@ install_conf() {
 	touch $1/.config/fish/config.fish
 	print_fishrc > $1/.config/fish/config.fish
 	print_alias_list >> $1/.config/fish/config.fish
+
+	mkdir -p $1/.config/nvim
+	touch $1/.config/nvim/init.vim
+	print_neovim > $1/.config/nvim/init.vim
+
 	chown $2:$2 $1/.config -R
 
 	if [ -d /tmp/user-bin ]
@@ -268,7 +285,6 @@ install_conf() {
 		chmod -R 500 $1/bin
 		chown -R $2:$2 $1/bin
 	fi
-
 
 	PROFILE_FILE="no_profile"
 	if [ -f $1/.profile ]
@@ -303,7 +319,7 @@ then
 	command_exists "bash" || $PACKAGE_INSTALLER bash
 	command_exists "zsh" || $PACKAGE_INSTALLER zsh
 	command_exists "fish" || $PACKAGE_INSTALLER fish
-	command_exists "vim" || $PACKAGE_INSTALLER vim
+	command_exists "nvim" || $PACKAGE_INSTALLER neovim
 	command_exists "tree" || $PACKAGE_INSTALLER tree
 	command_exists "htop" || $PACKAGE_INSTALLER htop
 	command_exists "git" || $PACKAGE_INSTALLER git

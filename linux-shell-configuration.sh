@@ -205,7 +205,11 @@ alias df="df -h"
 alias du="du -hs"
 alias free="free -h"
 alias ll="ls -alh --time-style=\"+%Y-%m-%d %H:%m\""
-alias vi="nvim"'
+alias vi="nvim"
+
+alias use-bash="exec bash"
+alias use-fish="exec fish"
+alias use-zsh="exec zsh"'
 }
 
 command_exists() {

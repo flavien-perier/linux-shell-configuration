@@ -194,10 +194,6 @@ alias grep="grep --color=auto"
 alias fgrep="fgrep --color=auto"
 alias egrep="egrep --color=auto"
 
-alias bash="exec bash"
-alias zsh="exec zsh"
-alias fish="exec fish"
-
 alias df="df -h"
 alias du="du -hs"
 alias free="free -h"

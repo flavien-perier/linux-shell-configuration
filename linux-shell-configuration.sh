@@ -35,7 +35,9 @@ then
 	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
 else
 	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
-fi'
+fi
+
+source $HOME/.alias'
 }
 
 print_zshrc() {
@@ -85,7 +87,9 @@ then
 else
 	export PROMPT="%f%* %BZ%b %F{green}%n@%m %F{blue}%~\$(git_prompt)
 %F{green}%#%f > "
-fi'
+fi
+
+source $HOME/.alias'
 }
 
 print_fishrc() {
@@ -161,7 +165,9 @@ function fish_prompt
 	set_color normal
 
 	echo -n " > "
-end'
+end
+
+source $HOME/.alias'
 }
 
 print_neovim() {
@@ -186,7 +192,8 @@ fi'
 }
 
 print_alias_list() {
-	echo '
+	echo '# Alias list
+
 alias ls="ls --color=auto"
 alias dir="dir --color=auto"
 alias vdir="vdir --color=auto"
@@ -253,20 +260,21 @@ download_scripts() {
 }
 
 install_conf() {
+	touch $1/.alias
+	print_alias_list > $1/.alias
+	chown $2:$2 $1/.alias
+
 	touch $1/.bashrc
 	print_bashrc > $1/.bashrc
-	print_alias_list >> $1/.bashrc
 	chown $2:$2 $1/.bashrc
 
 	touch $1/.zshrc
 	print_zshrc > $1/.zshrc
-	print_alias_list >> $1/.zshrc
 	chown $2:$2 $1/.zshrc
 
 	mkdir -p $1/.config/fish
 	touch $1/.config/fish/config.fish
 	print_fishrc > $1/.config/fish/config.fish
-	print_alias_list >> $1/.config/fish/config.fish
 
 	mkdir -p $1/.config/nvim
 	touch $1/.config/nvim/init.vim

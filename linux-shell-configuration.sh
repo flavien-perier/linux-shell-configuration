@@ -177,6 +177,7 @@ set tabstop=4
 set expandtab
 set shiftwidth=4
 set autoindent
+setl linebreak
 filetype plugin indent on
 syntax on
 '

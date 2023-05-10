@@ -14,7 +14,7 @@ export HISTIGNORE="ls:ll:pwd:clear"
 export HISTCONTROL="ignoredups"
 export HISTFILE="$HOME/.bash_history"
 
-git_prompt() {
+function git_prompt() {
 	BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
 	if [ $? -eq 0 ]
 	then
@@ -30,12 +30,29 @@ git_prompt() {
 	fi
 }
 
-if [ $UID -eq 0 ]
-then
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
-else
-	export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\]\u@\H \[\e[34m\]\w\$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
-fi
+function exit_status_prompt() {
+	OLD_EXIT_STATUS=$1
+
+	if [ $OLD_EXIT_STATUS -ne 0 ]
+	then
+		printf " \e[m(\e[31m$OLD_EXIT_STATUS\e[m)"
+	else
+		echo -n ""
+	fi
+}
+
+function precmd() {
+	OLD_EXIT_STATUS=$?
+
+	if [ $UID -eq 0 ]
+	then
+		export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\]\u@\H \[\e[34m\]\w\$(exit_status_prompt $OLD_EXIT_STATUS)$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
+	else
+		export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\]\u@\H \[\e[34m\]\w\$(exit_status_prompt $OLD_EXIT_STATUS)$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
+	fi
+}
+
+PROMPT_COMMAND=precmd
 
 source $HOME/.alias'
 }
@@ -45,11 +62,19 @@ print_zshrc() {
 
 autoload -U compinit
 compinit
-zstyle ":completion:*:descriptions" format "%U%B%d%b%u"
-zstyle ":completion:*:warnings" format "%BSorry, no matches for: %d%b"
-zstyle ":completion:*:sudo:*" command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
-zstyle ":completion:*" use-cache on
-zstyle ":completion:*" cache-path ~/.zsh_cache
+zstyle ":completion:*:*:*:*:*" menu select
+zstyle ":completion:*" auto-description "specify: %d"
+zstyle ":completion:*" completer _expand _complete
+zstyle ":completion:*" format "Completing %d"
+zstyle ":completion:*" group-name ""
+zstyle ":completion:*" list-colors ""
+zstyle ":completion:*" list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ":completion:*" matcher-list "m:{a-zA-Z}={A-Za-z}"
+zstyle ":completion:*" rehash true
+zstyle ":completion:*" select-prompt %SScrolling active: current selection at %p%s
+zstyle ":completion:*" use-compctl false
+zstyle ":completion:*" verbose true
+zstyle ":completion:*:kill:*" command "ps -u $USER -o pid,%cpu,tty,cputime,cmd"
 
 export HISTSIZE=5000
 export HISTFILESIZE=5000
@@ -62,9 +87,14 @@ setopt extendedglob
 setopt promptsubst
 zstyle ":completion:*:*:kill:*:processes" list-colors "=(#b) #([0-9]#)*=36=31"
 
+source ~/.znap/znap/znap.zsh
+znap source marlonrichert/zsh-autocomplete
+znap source zsh-users/zsh-autosuggestions
+znap source zsh-users/zsh-syntax-highlighting
+
 setopt correctall
 
-git_prompt() {
+function git_prompt() {
 	BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
 	if [ $? -eq 0 ]
 	then
@@ -80,14 +110,29 @@ git_prompt() {
 	fi
 }
 
-if [ $UID -eq 0 ]
-then
-	export PROMPT="%f%* %BZ%b %F{red}%n@%m %F{blue}%~\$(git_prompt)
+function exit_status_prompt() {
+	OLD_EXIT_STATUS=$1
+
+	if [ $OLD_EXIT_STATUS -ne 0 ]
+	then
+		print " %f(%F{red}$OLD_EXIT_STATUS%f)"
+	else
+		print -Pn ""
+	fi
+}
+
+function precmd() {
+	OLD_EXIT_STATUS=$?
+
+	if [ $UID -eq 0 ]
+	then
+		export PROMPT="%f%* %BZ%b %F{red}%n@%m %F{blue}%~\$(exit_status_prompt $OLD_EXIT_STATUS)$(git_prompt)
 %F{red}%#%f > "
-else
-	export PROMPT="%f%* %BZ%b %F{green}%n@%m %F{blue}%~\$(git_prompt)
+	else
+		export PROMPT="%f%* %BZ%b %F{green}%n@%m %F{blue}%~\$(exit_status_prompt $OLD_EXIT_STATUS)$(git_prompt)
 %F{green}%#%f > "
-fi
+	fi
+}
 
 source $HOME/.alias'
 }
@@ -186,6 +231,11 @@ syntax on
 print_profile() {
 	echo '
 # linux-shell-configuration
+if [ $USER = "root" ]
+then
+	export PATH="$PATH:/sbin"
+	export PATH="$PATH:/usr/sbin"
+fi
 if [ -d $HOME/bin ]
 then
 	export PATH="$PATH:$HOME/bin"
@@ -265,43 +315,50 @@ download_scripts() {
 }
 
 install_conf() {
-	touch $1/.alias
-	print_alias_list > $1/.alias
-	chown $2:$2 $1/.alias
+	USER_NAME=$1
+	USER_HOME=$2
 
-	touch $1/.bashrc
-	print_bashrc > $1/.bashrc
-	chown $2:$2 $1/.bashrc
+	touch $USER_HOME/.alias
+	print_alias_list > $USER_HOME/.alias
+	chown $USER_NAME:$USER_NAME $USER_HOME/.alias
 
-	touch $1/.zshrc
-	print_zshrc > $1/.zshrc
-	chown $2:$2 $1/.zshrc
+	touch $USER_HOME/.bashrc
+	print_bashrc > $USER_HOME/.bashrc
+	chown $USER_NAME:$USER_NAME $USER_HOME/.bashrc
 
-	mkdir -p $1/.config/fish
-	touch $1/.config/fish/config.fish
-	print_fishrc > $1/.config/fish/config.fish
+	touch $USER_HOME/.zshrc
+	print_zshrc > $USER_HOME/.zshrc
+	chown $USER_NAME:$USER_NAME $USER_HOME/.zshrc
+	rm -Rf $USER_HOME/.znap
+	mkdir -p $USER_HOME/.znap
+    git clone --depth 1 -- https://github.com/marlonrichert/zsh-snap.git $USER_HOME/.znap/znap
+	chown $USER_NAME:$USER_NAME $USER_HOME/.znap
 
-	mkdir -p $1/.config/nvim
-	touch $1/.config/nvim/init.vim
-	print_neovim > $1/.config/nvim/init.vim
+	mkdir -p $USER_HOME/.config/fish
+	touch $USER_HOME/.config/fish/config.fish
+	print_fishrc > $USER_HOME/.config/fish/config.fish
 
-	chown $2:$2 $1/.config -R
+	mkdir -p $USER_HOME/.config/nvim
+	touch $USER_HOME/.config/nvim/init.vim
+	print_neovim > $USER_HOME/.config/nvim/init.vim
+
+	chown $USER_NAME:$USER_NAME $USER_HOME/.config -R
 
 	if [ -d /tmp/user-bin ]
 	then
-		mkdir -p $1/bin
-		cp -R /tmp/user-bin/* $1/bin/
-		chmod -R 500 $1/bin
-		chown -R $2:$2 $1/bin
+		mkdir -p $USER_HOME/bin
+		cp -R /tmp/user-bin/* $USER_HOME/bin/
+		chmod -R 500 $USER_HOME/bin
+		chown -R $USER_NAME:$USER_NAME $USER_HOME/bin
 	fi
 
 	PROFILE_FILE="no_profile"
-	if [ -f $1/.profile ]
+	if [ -f $USER_HOME/.profile ]
 	then
-		PROFILE_FILE="$1/.profile"
-	elif [ -f $1/.bash_profile ]
+		PROFILE_FILE="$USER_HOME/.profile"
+	elif [ -f $USER_HOME/.bash_profile ]
 	then
-		PROFILE_FILE="$1/.bash_profile"
+		PROFILE_FILE="$USER_HOME/.bash_profile"
 	fi
 
 	if [ $PROFILE_FILE != "no_profile" ]
@@ -342,19 +399,19 @@ then
 
 	for USER_NAME in `ls /home | grep -v lost+found`
 	do
-		install_conf "/home/$USER_NAME" $USER_NAME
+		install_conf $USER_NAME "/home/$USER_NAME"
 		command_exists chsh && chsh -s `which fish` $USER_NAME
 	done
 
-	install_conf ~ root
+	install_conf root ~
 	command_exists chsh && chsh -s /bin/bash
 
 	mkdir -p /etc/skel/
-	install_conf /etc/skel root
+	install_conf root /etc/skel
 else
 	download_scripts
 
-	install_conf ~ $USER
+	install_conf $USER ~
 	command_exists chsh && chsh -s `which fish` $USER
 fi
 

@@ -26,7 +26,7 @@ function git_prompt() {
 			printf " \e[m[\e[31m$BRANCH\e[m]\e[34m"
 		fi
 	else
-		echo -n ""
+		printf ""
 	fi
 }
 
@@ -37,7 +37,7 @@ function exit_status_prompt() {
 	then
 		printf " \e[m(\e[31m$OLD_EXIT_STATUS\e[m)"
 	else
-		echo -n ""
+		printf ""
 	fi
 }
 
@@ -115,7 +115,7 @@ function exit_status_prompt() {
 
 	if [ $OLD_EXIT_STATUS -ne 0 ]
 	then
-		print " %f(%F{red}$OLD_EXIT_STATUS%f)"
+		print -Pn " %f(%F{red}$OLD_EXIT_STATUS%f)"
 	else
 		print -Pn ""
 	fi
@@ -149,7 +149,7 @@ function git_prompt
 		git diff --cached --exit-code > /dev/null
 		if [ $status -eq 0 ]
 			set_color normal
-			echo -n "["
+			echo -n " ["
 			set_color green
 			echo -n $BRANCH
 			set_color normal
@@ -158,7 +158,7 @@ function git_prompt
 			echo -n " "
 		else
 			set_color normal
-			echo -n "["
+			echo -n " ["
 			set_color red
 			echo -n $BRANCH
 			set_color normal
@@ -171,7 +171,24 @@ function git_prompt
 	end
 end
 
+function exit_status_prompt
+	set OLD_EXIT_STATUS $argv
+
+	if [ $OLD_EXIT_STATUS -ne 0 ]
+		set_color normal
+		echo -n " ("
+		set_color red
+		echo -n $OLD_EXIT_STATUS
+		set_color normal
+		echo -n ")"
+	else
+		echo -n ""
+	end
+end
+
 function fish_prompt
+	set OLD_EXIT_STATUS $status
+
 	set_color normal
 	echo -n (date +"%H:%M:%S")
 	
@@ -193,8 +210,8 @@ function fish_prompt
 
 	echo -n " "
 	echo -n (prompt_pwd)
-	echo -n " "
 
+	exit_status_prompt $OLD_EXIT_STATUS
 	git_prompt
 
 	echo ""
@@ -268,48 +285,50 @@ command_exists() {
 }
 
 download_scripts() {
-	mkdir -p /tmp/user-bin
+	mkdir -p /tmp/lsc/user-bin
 
 	KUBECTL_VSERSION=`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`
 	DOCKER_COMPOSE_VERSION=`curl -s https://api.github.com/repos/docker/compose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}'`
 	KMPOSE_VERSION=`curl -s https://api.github.com/repos/kubernetes/kompose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}'`
 
 	# Install kubectx
-	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/user-bin/kubectx
+	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx -o /tmp/lsc/user-bin/kubectx
 
 	# Install kubens
-	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens -o /tmp/user-bin/kubens
+	curl -Lqs https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens -o /tmp/lsc/user-bin/kubens
+
+	git clone --depth 1 -- https://github.com/marlonrichert/zsh-snap.git /tmp/lsc/znap
 
 	case `uname -m` in
 	x86_64)
 		# Install kubectl
-		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/amd64/kubectl -o /tmp/user-bin/kubectl
+		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/amd64/kubectl -o /tmp/lsc/user-bin/kubectl
 
 		# Install docker-compose
-		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64 -o /tmp/user-bin/docker-compose
+		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-x86_64 -o /tmp/lsc/user-bin/docker-compose
 
 		# Install kompose
-		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-amd64 -o /tmp/user-bin/kompose
+		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-amd64 -o /tmp/lsc/user-bin/kompose
 		;;
 	aarch64)
 		# Install kubectl
-		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/arm64/kubectl -o /tmp/user-bin/kubectl
+		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/arm64/kubectl -o /tmp/lsc/user-bin/kubectl
 
 		# Install docker-compose
-		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-armv7 -o /tmp/user-bin/docker-compose
+		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-armv7 -o /tmp/lsc/user-bin/docker-compose
 
 		# Install kompose
-		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-arm64 -o /tmp/user-bin/kompose
+		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-arm64 -o /tmp/lsc/user-bin/kompose
 		;;
 	armv7l)
 		# Install kubectl
-		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/arm/kubectl -o /tmp/user-bin/kubectl
+		curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/arm/kubectl -o /tmp/lsc/user-bin/kubectl
 
 		# Install docker-compose
-		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-armv7 -o /tmp/user-bin/docker-compose
+		curl -Lqs https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-linux-armv7 -o /tmp/lsc/user-bin/docker-compose
 
 		# Install kompose
-		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-arm -o /tmp/user-bin/kompose
+		curl -Lqs https://github.com/kubernetes/kompose/releases/download/$KMPOSE_VERSION/kompose-linux-arm -o /tmp/lsc/user-bin/kompose
 		;;
 	esac
 }
@@ -331,7 +350,7 @@ install_conf() {
 	chown $USER_NAME:$USER_NAME $USER_HOME/.zshrc
 	rm -Rf $USER_HOME/.znap
 	mkdir -p $USER_HOME/.znap
-    git clone --depth 1 -- https://github.com/marlonrichert/zsh-snap.git $USER_HOME/.znap/znap
+	cp -r /tmp/lsc/znap $USER_HOME/.znap/znap
 	chown $USER_NAME:$USER_NAME $USER_HOME/.znap
 
 	mkdir -p $USER_HOME/.config/fish
@@ -344,10 +363,10 @@ install_conf() {
 
 	chown $USER_NAME:$USER_NAME $USER_HOME/.config -R
 
-	if [ -d /tmp/user-bin ]
+	if [ -d /tmp/lsc/user-bin ]
 	then
 		mkdir -p $USER_HOME/bin
-		cp -R /tmp/user-bin/* $USER_HOME/bin/
+		cp -R /tmp/lsc/user-bin/* $USER_HOME/bin/
 		chmod -R 500 $USER_HOME/bin
 		chown -R $USER_NAME:$USER_NAME $USER_HOME/bin
 	fi
@@ -415,6 +434,6 @@ else
 	command_exists chsh && chsh -s `which fish` $USER
 fi
 
-rm -Rf /tmp/user-bin
+rm -Rf /tmp/lsc
 
 echo "Installation: OK"

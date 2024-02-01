@@ -272,7 +272,7 @@ alias egrep="egrep --color=auto"
 alias df="df -h"
 alias du="du -hs"
 alias free="free -h"
-alias ll="ls -alh --time-style=\"+%Y-%m-%d %H:%m\""
+alias ll="ls -alh --time-style=\"+%Y-%m-%d %H:%M\""
 alias vi="nvim"
 
 alias use-bash="exec bash"

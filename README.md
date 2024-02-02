@@ -22,14 +22,14 @@ These 3 shells then have equivalent prompts. These prompts have the following ch
 ## Installation
 
 ```sh
-curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh | sudo sh -
+curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/install.sh | sudo sh -
 ```
 
 Compatible with systems based on :
 
 - [Debian](https://www.debian.org/) -> ([Ubuntu](https://ubuntu.com/), [Mint](https://linuxmint.com/), [Kali](https://www.kali.org/))
 - [RedHat](https://www.redhat.com/) -> ([Fedora](https://getfedora.org/), [CentOS](https://www.centos.org/), [Rocky](https://rockylinux.org/))
-- [Arch](https://archlinux.org/) BTW -> ([Manjaro](https://manjaro.org/))
+- [Arch](https://archlinux.org/) -> ([Manjaro](https://manjaro.org/))
 - [Alpine](https://www.alpinelinux.org/)
 
 Compatible with the following architectures :
@@ -38,9 +38,3 @@ Compatible with the following architectures :
 - ARMv7 -> [RaspberryPi](https://www.raspberrypi.org/) 2 and 3
 - ARMv8_x64 -> RaspberryPi 4
 
-## Install for all users
-
-- [kubectl](https://github.com/kubernetes/kubectl)
-- [docker-compose](https://github.com/docker/compose)
-- [kubectx & kubens](https://github.com/ahmetb/kubectx)
-- [kompose](https://kompose.io/)

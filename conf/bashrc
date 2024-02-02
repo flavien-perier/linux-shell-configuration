@@ -1,0 +1,52 @@
+#!/bin/bash
+
+shopt -s checkwinsize
+command_not_found_handle()(printf "%s: command not found\n" "$1" >&2)
+
+export HISTSIZE=5000
+export HISTFILESIZE=5000
+export HISTIGNORE="ls:ll:pwd:clear"
+export HISTCONTROL="ignoredups"
+export HISTFILE="$HOME/.bash_history"
+
+function git_prompt() {
+    BRANCH=`git rev-parse --abbrev-ref HEAD 2>/dev/null`
+    if [ $? -eq 0 ]
+    then
+        git diff --cached --exit-code > /dev/null
+        if [ $? -eq 0 ]
+        then
+            printf " \e[m[\e[32m$BRANCH\e[m]\e[34m"
+        else
+            printf " \e[m[\e[31m$BRANCH\e[m]\e[34m"
+        fi
+    else
+        printf ""
+    fi
+}
+
+function exit_status_prompt() {
+    OLD_EXIT_STATUS=$1
+
+    if [ $OLD_EXIT_STATUS -ne 0 ]
+    then
+        printf " \e[m(\e[31m$OLD_EXIT_STATUS\e[m)"
+    else
+        printf ""
+    fi
+}
+
+function precmd() {
+    OLD_EXIT_STATUS=$?
+
+    if [ $UID -eq 0 ]
+    then
+        export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[31m\]\u@\H \[\e[34m\]\w\$(exit_status_prompt $OLD_EXIT_STATUS)$(git_prompt)\n\[\e[31m\]#\[\e[m\] > "
+    else
+        export PS1="\[\e[m\]\$(date +"%H:%M:%S") \e[1mB\e[m \[\e[32m\]\u@\H \[\e[34m\]\w\$(exit_status_prompt $OLD_EXIT_STATUS)$(git_prompt)\n\[\e[32m\]%\[\e[m\] > "
+    fi
+}
+
+PROMPT_COMMAND=precmd
+
+source $HOME/.alias

@@ -1,4 +1,3 @@
-# linux-shell-configuration
 if [ $USER = "root" ]
 then
     export PATH="$PATH:/sbin"

@@ -6,6 +6,10 @@ set -e
 BASE_URL="https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master"
 CONF_URL="$BASE_URL/conf"
 
+TMP_BIN_DIR="/tmp/lsc/bin"
+TMP_CONF_DIR="/tmp/lsc/conf"
+TMP_ZNAP_DIR="/tmp/lsc/znap"
+
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -121,61 +125,77 @@ install_tools() {
     echo "Installation of external tools is now complete."
 }
 
+download_bin() {
+    mkdir -p $TMP_BIN_DIR
+}
+
+download_conf() {
+    mkdir -p $TMP_CONF_DIR
+
+    curl -s $BASE_URL/conf/alias > $TMP_CONF_DIR/alias
+    curl -s $BASE_URL/conf/bashrc > $TMP_CONF_DIR/bashrc
+    curl -s $BASE_URL/conf/fishrc > $TMP_CONF_DIR/fishrc
+    curl -s $BASE_URL/conf/neovim > $TMP_CONF_DIR/neovim
+    curl -s $BASE_URL/conf/profile > $TMP_CONF_DIR/profile
+    curl -s $BASE_URL/conf/zshrc > $TMP_CONF_DIR/zshrc
+}
+
+download_znap() {
+    mkdir -p $TMP_ZNAP_DIR
+
+    git clone --depth 1 -- https://github.com/marlonrichert/zsh-snap.git $TMP_ZNAP_DIR
+}
+
 install_conf() {
     USER_NAME=$1
     USER_HOME=$2
 
-    touch $USER_HOME/.alias
-    print_alias_list > $USER_HOME/.alias
+    # Alias
+    cat $TMP_CONF_DIR/alias | tee $USER_HOME/.alias
     chown $USER_NAME:$USER_NAME $USER_HOME/.alias
 
-    touch $USER_HOME/.bashrc
-    print_bashrc > $USER_HOME/.bashrc
+    # Bash
+    cat $TMP_CONF_DIR/bashrc | tee $USER_HOME/.bashrc
     chown $USER_NAME:$USER_NAME $USER_HOME/.bashrc
 
-    touch $USER_HOME/.zshrc
-    print_zshrc > $USER_HOME/.zshrc
+    # Zsh
+    cat $TMP_CONF_DIR/zshrc | tee $USER_HOME/.zshrc
     chown $USER_NAME:$USER_NAME $USER_HOME/.zshrc
     rm -Rf $USER_HOME/.znap
     mkdir -p $USER_HOME/.znap
-    cp -r /tmp/lsc/znap $USER_HOME/.znap/znap
+    cp -r $TMP_ZNAP_DIR $USER_HOME/.znap/znap
     chown $USER_NAME:$USER_NAME $USER_HOME/.znap
 
+    # Fish
     mkdir -p $USER_HOME/.config/fish
-    touch $USER_HOME/.config/fish/config.fish
-    print_fishrc > $USER_HOME/.config/fish/config.fish
+    cat $TMP_CONF_DIR/fishrc | tee $USER_HOME/.config/fish/config.fish
 
+    # Neovim
     mkdir -p $USER_HOME/.config/nvim
-    touch $USER_HOME/.config/nvim/init.vim
-    print_neovim > $USER_HOME/.config/nvim/init.vim
-
-    chown $USER_NAME:$USER_NAME $USER_HOME/.config -R
+    cat $TMP_CONF_DIR/neovim | tee $USER_HOME/.config/nvim/init.vim
+    chown -R $USER_NAME:$USER_NAME $USER_HOME/.config/nvim
 
     mkdir -p $USER_HOME/bin
-    if [ -d /tmp/lsc/user-bin ]
+    if [ -d $TMP_BIN_DIR ]
     then
-        cp -R /tmp/lsc/user-bin/* $USER_HOME/bin/
+        cp -R $TMP_BIN_DIR/* $USER_HOME/bin/
     fi
     chmod -R 500 $USER_HOME/bin
     chown -R $USER_NAME:$USER_NAME $USER_HOME/bin
 
-    PROFILE_FILE="no_profile"
     if [ -f $USER_HOME/.profile ]
     then
-        PROFILE_FILE="$USER_HOME/.profile"
+        cat $TMP_CONF_DIR/neovim | tee $USER_HOME/.profile
     elif [ -f $USER_HOME/.bash_profile ]
     then
-        PROFILE_FILE="$USER_HOME/.bash_profile"
+        cat $TMP_CONF_DIR/neovim | tee $USER_HOME/.bash_profile
     fi
+}
 
-    if [ $PROFILE_FILE != "no_profile" ]
-    then
-        grep -q "# linux-shell-configuration" $PROFILE_FILE
-        if [ $? -ne 0 ]
-        then
-            print_profile >> $PROFILE_FILE
-        fi
-    fi
+clean_after_install() {
+    rm -Rf $TMP_BIN_DIR
+    rm -Rf $TMP_CONF_DIR
+    rm -Rf $TMP_ZNAP_DIR
 }
 
 main() {
@@ -184,6 +204,9 @@ main() {
     if is_root
     then
         install_tools
+        download_bin
+        download_conf
+        download_znap
         
         install_conf root ~
         command_exists chsh && chsh -s /bin/bash
@@ -198,8 +221,9 @@ main() {
             command_exists chsh && chsh -s $(which fish) "$(echo $USER_INFOS | cut -f1 -d:)"
         done
     else
-
+        install_conf $USER ~
     fi
+    clean_after_install
     echo "End of installation."
 }
 

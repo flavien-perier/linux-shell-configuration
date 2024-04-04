@@ -2,6 +2,8 @@
 # Flavien PERIER <perier@flavien.io>
 # Install user profiles
 
+set -e
+
 LSC_USER_BIN=$(mktemp -dt lsc-XXXXXXX)
 LSC_ZNAP=$(mktemp -dt znap-XXXXXXX)
 
@@ -20,6 +22,7 @@ export HISTCONTROL="ignoredups"
 export HISTFILE="$HOME/.bash_history"
 
 function git_prompt() {
+    local BRANCH=""
     BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
     if [ $? -eq 0 ]
     then
@@ -99,6 +102,7 @@ znap source zsh-users/zsh-syntax-highlighting
 setopt correctall
 
 function git_prompt() {
+    local BRANCH=""
     BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
     if [ $? -eq 0 ]
     then
@@ -286,6 +290,22 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+securise_location() {
+    local OWNER="$1"
+    local LOCATION="$2"
+
+    chown -R $OWNER:$OWNER $LOCATION
+    if [ -f $LOCATION ]
+    then
+        chmod 400 $LOCATION
+    elif [ -d $LOCATION ]
+    then
+        find $LOCATION -type f -exec chmod 400 {} \;
+        find $LOCATION -type d -exec chmod 700 {} \;
+    fi
+
+}
+
 download_scripts() {
     local KUBECTL_VSERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
     local DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep "tag_name" | awk '{match($0,"\"tag_name\": \"(.+)\",",a)}END{print a[1]}')
@@ -313,7 +333,7 @@ download_scripts() {
         ;;
     esac
 
-    git clone --depth 1 -- https://github.com/marlonrichert/zsh-snap.git $LSC_ZNAP
+    git clone -q --depth 1 -- https://github.com/marlonrichert/zsh-snap.git $LSC_ZNAP
     printf "zsh-snap [\033[0;32mOK\033[0m]\n"
 
     curl -Lqs https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VSERSION/bin/linux/$KUBECTL_ARCH/kubectl -o $LSC_USER_BIN/kubectl
@@ -336,38 +356,51 @@ install_conf() {
     local USER_NAME=$1
     local USER_HOME=$2
 
-    touch $USER_HOME/.alias
-    print_alias_list > $USER_HOME/.alias
-    chown $USER_NAME:$USER_NAME $USER_HOME/.alias
+    local BASHRC_PATH="$USER_HOME/.bashrc"
+    local ZSHRC_PATH="$USER_HOME/.zshrc"
+    local CONFIG_DIR="$USER_HOME/.config"
+    local FISH_DIR="$CONFIG_DIR/fish"
+    local NEOVIM_DIR="$CONFIG_DIR/nvim"
+    local ZNAP_DIR="$USER_HOME/.znap"
+    local ALIAS_PATH="$USER_HOME/.alias"
+    local USER_BIN_DIR="$USER_HOME/bin"
 
-    touch $USER_HOME/.bashrc
-    print_bashrc > $USER_HOME/.bashrc
-    chown $USER_NAME:$USER_NAME $USER_HOME/.bashrc
+    print_bashrc > $BASHRC_PATH
+    securise_location $USER_NAME $BASHRC_PATH
 
-    touch $USER_HOME/.zshrc
-    print_zshrc > $USER_HOME/.zshrc
-    chown $USER_NAME:$USER_NAME $USER_HOME/.zshrc
-    rm -Rf $USER_HOME/.znap
-    mkdir -p $USER_HOME/.znap
-    cp -r $LSC_ZNAP $USER_HOME/.znap/znap
-    chown $USER_NAME:$USER_NAME $USER_HOME/.znap
+    print_zshrc > $ZSHRC_PATH
+    securise_location $USER_NAME $ZSHRC_PATH
 
-    mkdir -p $USER_HOME/.config/fish
-    touch $USER_HOME/.config/fish/config.fish
-    print_fishrc > $USER_HOME/.config/fish/config.fish
+    mkdir -p $FISH_DIR
+    print_fishrc > $FISH_DIR/config.fish
 
-    mkdir -p $USER_HOME/.config/nvim
-    touch $USER_HOME/.config/nvim/init.vim
-    print_neovim > $USER_HOME/.config/nvim/init.vim
+    mkdir -p $NEOVIM_DIR
+    print_neovim > $NEOVIM_DIR/init.vim
 
-    chown $USER_NAME:$USER_NAME $USER_HOME/.config -R
+    securise_location $USER_NAME $CONFIG_DIR
 
-    mkdir -p $USER_HOME/bin
+    if [ -f $ZNAP_DIR ]
+    then
+        chmod 750 $ZNAP_DIR
+        rm -Rf $ZNAP_DIR
+    fi
+    mkdir -p $ZNAP_DIR
+    cp -r $LSC_ZNAP $ZNAP_DIR/znap
+    securise_location $USER_NAME $ZNAP_DIR
+
+    if [ ! -f $ALIAS_PATH ]
+    then
+        touch $ALIAS_PATH
+        print_alias_list > $ALIAS_PATH
+        securise_location $USER_NAME $ALIAS_PATH
+    fi
+
+    mkdir -p $USER_BIN_DIR
     if [ -d $LSC_USER_BIN ] && [ $USER_NAME != "root" ]
     then
-        cp -R $LSC_USER_BIN/* $USER_HOME/bin/
-        chmod -R 500 $USER_HOME/bin
-        chown -R $USER_NAME:$USER_NAME $USER_HOME/bin
+        cp -R $LSC_USER_BIN/* $USER_BIN_DIR/
+        securise_location $USER_NAME $USER_BIN_DIR
+        chmod 500 $USER_BIN_DIR/*
     fi
 
     local PROFILE_FILE="no_profile"
@@ -381,20 +414,20 @@ install_conf() {
 
     if [ $PROFILE_FILE != "no_profile" ]
     then
-        grep -q "# linux-shell-configuration" $PROFILE_FILE
-        if [ $? -ne 0 ]
+        if ! grep -q "# linux-shell-configuration" $PROFILE_FILE
         then
             print_profile >> $PROFILE_FILE
+            securise_location $USER_NAME $PROFILE_FILE
         fi
     fi
 
-    printf "Configure user \033[0;36m$USER_NAME\033[0m\n"
+    printf "Configure user \033[0;36m$USER_NAME\033[0m with home \033[0;36m$USER_HOME\033[0m [\033[0;32mOK\033[0m]\n"
 }
 
 main() {
     if [ $(id -u) -eq 0 ]
     then
-        local PACKAGE_INSTALLER="echo 'Installation: FAILED' && exit -1"
+        local PACKAGE_INSTALLER="printf 'Installation [\033[0;31mKO\033[0m]\n' && exit 1"
         command_exists "apt-get" && apt-get update -qq && PACKAGE_INSTALLER="apt-get install -qq -y"
         command_exists "yum" && PACKAGE_INSTALLER="yum install -q -y"
         command_exists "dnf" && PACKAGE_INSTALLER="dnf install -q -y"
@@ -409,16 +442,16 @@ main() {
         printf "fish [\033[0;32mOK\033[0m]\n"
         command_exists "nvim" || $PACKAGE_INSTALLER neovim 1>/dev/null
         printf "neovim [\033[0;32mOK\033[0m]\n"
-        command_exists "tree" || $PACKAGE_INSTALLER tree 1>/dev/null
-        printf "tree [\033[0;32mOK\033[0m]\n"
-        command_exists "htop" || $PACKAGE_INSTALLER htop 1>/dev/null
-        printf "htop [\033[0;32mOK\033[0m]\n"
         command_exists "git" || $PACKAGE_INSTALLER git 1>/dev/null
         printf "git [\033[0;32mOK\033[0m]\n"
+        command_exists "htop" || $PACKAGE_INSTALLER htop 1>/dev/null
+        printf "htop [\033[0;32mOK\033[0m]\n"
         command_exists "curl" || $PACKAGE_INSTALLER curl 1>/dev/null
         printf "curl [\033[0;32mOK\033[0m]\n"
         command_exists "wget" || $PACKAGE_INSTALLER wget 1>/dev/null
         printf "wget [\033[0;32mOK\033[0m]\n"
+        command_exists "tree" || $PACKAGE_INSTALLER tree 1>/dev/null
+        printf "tree [\033[0;32mOK\033[0m]\n"
         command_exists "gawk" || $PACKAGE_INSTALLER gawk 1>/dev/null
         printf "gawk [\033[0;32mOK\033[0m]\n"
 
@@ -426,9 +459,9 @@ main() {
 
         print_bashrc > /etc/bash.bashrc
 
-        for USER_NAME in $(ls /home | grep -v lost+found)
+        for USER_INFOS in $(cat /etc/passwd | cut -f1,6 -d: | grep ":/home/")
         do
-            install_conf $USER_NAME "/home/$USER_NAME"
+            install_conf "$(echo $USER_INFOS | cut -f1 -d:)" "$(echo $USER_INFOS | cut -f2 -d:)"
             command_exists chsh && chsh -s $(which fish) $USER_NAME
         done
 

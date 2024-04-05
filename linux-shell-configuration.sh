@@ -365,6 +365,18 @@ install_conf() {
     local ALIAS_PATH="$USER_HOME/.alias"
     local USER_BIN_DIR="$USER_HOME/bin"
 
+    if [ ! -d $USER_HOME ]
+    then
+        mkdir -p $USER_HOME
+        securise_location $USER_HOME
+    fi
+
+    if [ ! -d $CONFIG_DIR ]
+    then
+        mkdir -p $CONFIG_DIR
+        securise_location $CONFIG_DIR
+    fi
+
     print_bashrc > $BASHRC_PATH
     securise_location $USER_NAME $BASHRC_PATH
 
@@ -373,15 +385,15 @@ install_conf() {
 
     mkdir -p $FISH_DIR
     print_fishrc > $FISH_DIR/config.fish
+    securise_location $USER_NAME $FISH_DIR
 
     mkdir -p $NEOVIM_DIR
     print_neovim > $NEOVIM_DIR/init.vim
-
-    securise_location $USER_NAME $CONFIG_DIR
+    securise_location $USER_NAME $NEOVIM_DIR
 
     if [ -f $ZNAP_DIR ]
     then
-        chmod 750 $ZNAP_DIR
+        chmod -R u+w $ZNAP_DIR
         rm -Rf $ZNAP_DIR
     fi
     mkdir -p $ZNAP_DIR
@@ -400,7 +412,7 @@ install_conf() {
     then
         cp -R $LSC_USER_BIN/* $USER_BIN_DIR/
         securise_location $USER_NAME $USER_BIN_DIR
-        chmod 500 $USER_BIN_DIR/*
+        chmod u+x $USER_BIN_DIR/*
     fi
 
     local PROFILE_FILE="no_profile"

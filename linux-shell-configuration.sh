@@ -459,7 +459,7 @@ main() {
 
         print_bashrc > /etc/bash.bashrc
 
-        for USER_INFOS in $(cat /etc/passwd | cut -f1,6 -d: | grep ":/home/")
+        for USER_INFOS in $(cat /etc/passwd | grep -v ":/usr/sbin/nologin$" | cut -f1,6 -d: | grep ":/home/")
         do
             install_conf "$(echo $USER_INFOS | cut -f1 -d:)" "$(echo $USER_INFOS | cut -f2 -d:)"
             command_exists chsh && chsh -s $(which fish) $USER_NAME

@@ -294,12 +294,13 @@ securise_location() {
     local OWNER="$1"
     local LOCATION="$2"
 
-    chown -R $OWNER:$OWNER $LOCATION
     if [ -f $LOCATION ]
     then
+        chown -R $OWNER:$OWNER $LOCATION
         chmod 400 $LOCATION
     elif [ -d $LOCATION ]
     then
+        chown -R $OWNER:$OWNER $LOCATION
         find $LOCATION -type f -exec chmod 400 {} \;
         find $LOCATION -type d -exec chmod 700 {} \;
     fi

@@ -296,11 +296,11 @@ securise_location() {
 
     if [ -f $LOCATION ]
     then
-        chown -R $OWNER:$OWNER $LOCATION
+        chown -R $OWNER:$OWNER "$LOCATION"
         chmod 400 $LOCATION
     elif [ -d $LOCATION ]
     then
-        chown -R $OWNER:$OWNER $LOCATION
+        chown -R $OWNER:$OWNER "$LOCATION"
         find $LOCATION -type f -exec chmod 400 {} \;
         find $LOCATION -type d -exec chmod 700 {} \;
     fi
@@ -369,13 +369,13 @@ install_conf() {
     if [ ! -d $USER_HOME ]
     then
         mkdir -p $USER_HOME
-        securise_location $USER_HOME
+        securise_location $USER_NAME $USER_HOME
     fi
 
     if [ ! -d $CONFIG_DIR ]
     then
         mkdir -p $CONFIG_DIR
-        securise_location $CONFIG_DIR
+        securise_location $USER_NAME $CONFIG_DIR
     fi
 
     print_bashrc > $BASHRC_PATH
@@ -447,26 +447,45 @@ main() {
         command_exists "apk" && PACKAGE_INSTALLER="apk add --update --no-cache"
         command_exists "pacman" && PACKAGE_INSTALLER="pacman -q --noconfirm -S"
 
-        command_exists "bash" || $PACKAGE_INSTALLER bash 1>/dev/null
-        printf "bash [\033[0;32mOK\033[0m]\n"
-        command_exists "zsh" || $PACKAGE_INSTALLER zsh 1>/dev/null
-        printf "zsh [\033[0;32mOK\033[0m]\n"
-        command_exists "fish" || $PACKAGE_INSTALLER fish 1>/dev/null
-        printf "fish [\033[0;32mOK\033[0m]\n"
-        command_exists "nvim" || $PACKAGE_INSTALLER neovim 1>/dev/null
-        printf "neovim [\033[0;32mOK\033[0m]\n"
-        command_exists "git" || $PACKAGE_INSTALLER git 1>/dev/null
-        printf "git [\033[0;32mOK\033[0m]\n"
-        command_exists "htop" || $PACKAGE_INSTALLER htop 1>/dev/null
-        printf "htop [\033[0;32mOK\033[0m]\n"
-        command_exists "curl" || $PACKAGE_INSTALLER curl 1>/dev/null
-        printf "curl [\033[0;32mOK\033[0m]\n"
-        command_exists "wget" || $PACKAGE_INSTALLER wget 1>/dev/null
-        printf "wget [\033[0;32mOK\033[0m]\n"
-        command_exists "tree" || $PACKAGE_INSTALLER tree 1>/dev/null
-        printf "tree [\033[0;32mOK\033[0m]\n"
-        command_exists "gawk" || $PACKAGE_INSTALLER gawk 1>/dev/null
-        printf "gawk [\033[0;32mOK\033[0m]\n"
+        command_exists "bash" || $PACKAGE_INSTALLER bash 1>/dev/null && \
+            printf "bash [\033[0;32mOK\033[0m]\n" || \
+            printf "bash [\033[0;31mKO\033[0m]\n"
+
+        command_exists "zsh" || $PACKAGE_INSTALLER zsh 1>/dev/null && \
+            printf "zsh [\033[0;32mOK\033[0m]\n" || \
+            printf "zsh [\033[0;31mKO\033[0m]\n"
+
+        command_exists "fish" || $PACKAGE_INSTALLER fish 1>/dev/null && \
+            printf "fish [\033[0;32mOK\033[0m]\n" || \
+            printf "fish [\033[0;31mKO\033[0m]\n"
+
+        command_exists "nvim" || $PACKAGE_INSTALLER neovim 1>/dev/null && \
+            printf "neovim [\033[0;32mOK\033[0m]\n" || \
+            printf "neovim [\033[0;31mKO\033[0m]\n"
+
+        command_exists "git" || $PACKAGE_INSTALLER git 1>/dev/null && \
+            printf "git [\033[0;32mOK\033[0m]\n" || \
+            printf "git [\033[0;31mKO\033[0m]\n"
+
+        command_exists "htop" || $PACKAGE_INSTALLER htop 1>/dev/null && \
+            printf "htop [\033[0;32mOK\033[0m]\n" || \
+            printf "htop [\033[0;31mKO\033[0m]\n"
+
+        command_exists "curl" || $PACKAGE_INSTALLER curl 1>/dev/null && \
+            printf "curl [\033[0;32mOK\033[0m]\n" || \
+            printf "curl [\033[0;31mKO\033[0m]\n"
+
+        command_exists "wget" || $PACKAGE_INSTALLER wget 1>/dev/null && \
+            printf "wget [\033[0;32mOK\033[0m]\n" || \
+            printf "wget [\033[0;31mKO\033[0m]\n"
+
+        command_exists "tree" || $PACKAGE_INSTALLER tree 1>/dev/null && \
+            printf "tree [\033[0;32mOK\033[0m]\n" || \
+            printf "tree [\033[0;31mKO\033[0m]\n"
+
+        command_exists "gawk" || $PACKAGE_INSTALLER gawk 1>/dev/null && \
+            printf "gawk [\033[0;32mOK\033[0m]\n" || \
+            printf "gawk [\033[0;31mKO\033[0m]\n"
 
         download_scripts
 

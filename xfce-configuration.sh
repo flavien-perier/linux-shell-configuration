@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/bin/sh
+# Flavien PERIER <perier@flavien.io>
+# Configure XFCE
+
+set -e
 
 backup_actual_xfce_configuration() {
     XFCE_BACKUP=$(mktemp -t xfce-XXXXXXX)

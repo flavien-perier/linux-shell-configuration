@@ -6,12 +6,13 @@ set -e
 set -x
 
 SCRIPT_TITLE="Arch configuration"
+INSTALL_DIR="/mnt"
 
 loadkeys fr
 
 HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Hostname" 10 50 3>&1 1>&2 2>&3)
 USERNAME=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Principal username" 10 50 3>&1 1>&2 2>&3)
-DISK=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Principal username" 10 50 3>&1 1>&2 2>&3)
+DISK=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Disk used for install" 10 50 3>&1 1>&2 2>&3)
 
 parted --script $DISK mklabel gpt
 parted --script $DISK mkpart primary 1MiB 501MiB
@@ -26,51 +27,49 @@ mkswap ${DISK}2
 mkfs.ext4 ${DISK}3
 
 swapon ${DISK}2
-mount ${DISK}3 /mnt
+mount ${DISK}3 $INSTALL_DIR
 
-pacstrap /mnt base linux linux-firmware grub systemd dhcpcd sudo pacman flatpak
+pacstrap $INSTALL_DIR base linux linux-firmware grub systemd dhcpcd sudo pacman flatpak
 
-genfstab -U /mnt >> /mnt/etc/fstab
-
-arch-chroot /mnt
-
-echo "$HOSTNAME" > /etc/hostname
-
-# Sudo configuration
-echo "%sudo	ALL=(ALL:ALL) ALL" >> /etc/sudoers
-groupadd sudo
+echo "$HOSTNAME" > $INSTALL_DIR/etc/hostname
 
 # Local configuration
-ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
-hwclock --systohc
-echo "fr_FR.UTF-8 UTF-8" > /etc/locale.gen
-echo "LANG=fr_FR.UTF-8" > /etc/locale.conf
-echo "KEYMAP=fr" > /etc/vconsole.conf
-locale-gen
+echo "fr_FR.UTF-8 UTF-8" > $INSTALL_DIR/etc/locale.gen
+echo "LANG=fr_FR.UTF-8" > $INSTALL_DIR/etc/locale.conf
+echo "KEYMAP=fr" > $INSTALL_DIR/etc/vconsole.conf
+arch-chroot $INSTALL_DIR ln -sf /usr/share/zoneinfo/Europe/Paris /etc/localtime
+arch-chroot $INSTALL_DIR hwclock --systohc
+arch-chroot $INSTALL_DIR locale-gen
 
 # Network configuration
-cat << EOL > /etc/hosts
+cat << EOL > $INSTALL_DIR/etc/hosts
 127.0.0.1 localhost
 ::1       localhost
 EOL
-cat << EOL > /etc/resolv.conf
+cat << EOL > $INSTALL_DIR/etc/resolv.conf
 nameserver 208.67.222.222
 nameserver 208.67.220.220
 nameserver 1.1.1.1
 nameserver 1.0.0.1
 nameserver 151.80.222.79
 EOL
-systemctl enable dhcpcd
+arch-chroot $INSTALL_DIR systemctl enable dhcpcd
+
+# Fstab configuration
+genfstab -U $INSTALL_DIR >> $INSTALL_DIR/etc/fstab
+
+# Sudo configuration
+echo "%sudo	ALL=(ALL:ALL) ALL" >> $INSTALL_DIR/etc/sudoers
+arch-chroot $INSTALL_DIR groupadd sudo
 
 # User configuration
-passwd
-useradd -m $USERNAME
-usermod -a -G sudo $USERNAME
-passwd $USERNAME
-curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh | bash -
+arch-chroot $INSTALL_DIR useradd -m $USERNAME
+arch-chroot $INSTALL_DIR usermod -a -G sudo $USERNAME
+curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh \
+    | arch-chroot $INSTALL_DIR bash -
 
 # Grub installation
-mkdir /boot/efi
-mount ${DISK}1 /boot/efi
-grub-install ${DISK} --target=i386-pc --root-directory=/mnt
-grub-mkconfig -o /boot/grub/grub.cfg
+arch-chroot $INSTALL_DIR mkdir /boot/efi
+arch-chroot $INSTALL_DIR mount ${DISK}1 /boot/efi
+arch-chroot $INSTALL_DIR grub-install ${DISK} --target=i386-pc --root-directory=$INSTALL_DIR
+arch-chroot $INSTALL_DIR grub-mkconfig -o /boot/grub/grub.cfg

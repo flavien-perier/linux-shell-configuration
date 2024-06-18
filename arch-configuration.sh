@@ -8,14 +8,14 @@ SCRIPT_TITLE="Arch configuration"
 
 loadkeys fr
 
-HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" -inputbox "Hostname" 3>&1 1>&2 2>&3)
-HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" -inputbox "Principal username" 3>&1 1>&2 2>&3)
-HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" -inputbox "Used disk" 3>&1 1>&2 2>&3)
+HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Hostname" 10 50 3>&1 1>&2 2>&3)
+USERNAME=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Principal username" 10 50 3>&1 1>&2 2>&3)
+DISK=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Principal username" 10 50 3>&1 1>&2 2>&3)
 
 parted --script $DISK mklabel msdos
-parted --script $DISK mkpart primary 1 524288KB
-parted --script $DISK mkpart primary 524288KB 4718592KB
-parted --script $DISK mkpart primary 4608KB 100%
+parted --script $DISK mkpart primary 0 524288KB
+parted --script $DISK mkpart primary 524289KB 4718593KB
+parted --script $DISK mkpart primary 4718594KB 100%
 
 ip link
 timedatectl set-ntp true

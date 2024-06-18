@@ -4,16 +4,13 @@
 
 set -e
 
+SCRIPT_TITLE="Arch configuration"
+
 loadkeys fr
 
-echo -n "hostname : "
-read -r HOSTNAME
-
-echo -n "username : "
-read -r USERNAME
-
-echo -n "disk : "
-read -r DISK
+HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" -inputbox "Hostname" 3>&1 1>&2 2>&3)
+HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" -inputbox "Principal username" 3>&1 1>&2 2>&3)
+HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" -inputbox "Used disk" 3>&1 1>&2 2>&3)
 
 parted --script $DISK mklabel msdos
 parted --script $DISK mkpart primary 1 524288KB

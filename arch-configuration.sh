@@ -74,7 +74,3 @@ mkdir /boot/efi
 mount ${DISK}1 /boot/efi
 grub-install ${DISK} --target=i386-pc --root-directory=/mnt
 grub-mkconfig -o /boot/grub/grub.cfg
-
-exit
-
-shutdown -r now

@@ -65,7 +65,7 @@ arch-chroot $INSTALL_DIR groupadd sudo
 # User configuration
 arch-chroot $INSTALL_DIR useradd -m $USERNAME
 arch-chroot $INSTALL_DIR usermod -a -G sudo $USERNAME
-curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh \
+curl -s https://raw.githubusercontent.com/flavien-perier/linux-configuration/master/shell-configuration.sh \
     | arch-chroot $INSTALL_DIR bash -
 
 # Grub installation

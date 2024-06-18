@@ -3,6 +3,7 @@
 # Install Arch Linux base
 
 set -e
+set -x
 
 SCRIPT_TITLE="Arch configuration"
 
@@ -12,10 +13,10 @@ HOSTNAME=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Hostname" 10 50 3>&1 1>&
 USERNAME=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Principal username" 10 50 3>&1 1>&2 2>&3)
 DISK=$(whiptail --title "$SCRIPT_TITLE" --inputbox "Principal username" 10 50 3>&1 1>&2 2>&3)
 
-parted --script $DISK mklabel msdos
-parted --script $DISK mkpart primary 0 524288KB
-parted --script $DISK mkpart primary 524289KB 4718593KB
-parted --script $DISK mkpart primary 4718594KB 100%
+parted --script $DISK mklabel gpt
+parted --script $DISK mkpart primary 1MiB 501MiB
+parted --script $DISK mkpart primary 501MiB 4501Mib
+parted --script $DISK mkpart primary 4501Mib 100%
 
 ip link
 timedatectl set-ntp true
@@ -35,13 +36,7 @@ arch-chroot /mnt
 
 echo "$HOSTNAME" > /etc/hostname
 
-# Grub installation
-mkdir /boot/efi
-mount ${DISK}1 /boot/efi
-grub-install ${DISK} --target=i386-pc --root-directory=/mnt
-grub-mkconfig -o /boot/grub/grub.cfg
-
-# Tools configuration
+# Sudo configuration
 echo "%sudo	ALL=(ALL:ALL) ALL" >> /etc/sudoers
 groupadd sudo
 
@@ -73,5 +68,13 @@ useradd -m $USERNAME
 usermod -a -G sudo $USERNAME
 passwd $USERNAME
 curl -s https://raw.githubusercontent.com/flavien-perier/linux-shell-configuration/master/linux-shell-configuration.sh | bash -
+
+# Grub installation
+mkdir /boot/efi
+mount ${DISK}1 /boot/efi
+grub-install ${DISK} --target=i386-pc --root-directory=/mnt
+grub-mkconfig -o /boot/grub/grub.cfg
+
+exit
 
 shutdown -r now

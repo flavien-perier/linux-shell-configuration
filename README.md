@@ -1,6 +1,6 @@
-![license](https://badgen.net/github/license/flavien-perier/linux-shell-configuration)
+![license](https://badgen.net/github/license/flavien-perier/linux-configuration)
 
-# Linux Shell Configuration
+# Linux Configuration
 
 ![Screenshot](./doc/screenshot.png)
 
